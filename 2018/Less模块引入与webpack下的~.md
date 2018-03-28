@@ -37,4 +37,44 @@
     background-repeat: no-repeat;
   }
 ```
-这里的关键其实就是多了个~，因此顺腾摸瓜，从webpack官网查找~相关的，在官方中文文档的LOADERS列表中，关于less-loader中有介绍，~利用了webpack的高级特性，将查询参数（这里应该就是传递的图片路径）传递给webpack resolver，告诉webpack从node_modules模块中查找less模块（类似于js模块的导入）。**~其实就被解析为webapck.config.js所在的根目录**。
+这里的关键其实就是多了个~，因此顺腾摸瓜，从webpack官网查找~相关的，在官方中文文档的LOADERS列表中，关于less-loader中有介绍，~利用了webpack的高级特性，将查询参数（这里应该就是传递的图片路径）传递给webpack resolver，告诉webpack***以模块查找的方式对待该路径***。有点懵逼，没关系，看下例子。
+
+### 先看下js模块的的导入规则
+```js
+  <!-- 引用Vue模块，优先会从Node核心模块查找，找不到的话，就从node_modules查找 -->
+  var vue = require('vue')
+  import Vue from 'vue'
+
+  <!-- 如果传入的是一个相对路径，则按相对路径查找 -->
+  var util = require('./utils')
+  import util from './utils'
+
+  <!-- webpack中可以配置alias（别名），假设@指代src/ -->
+  import main from '@/common/main' // 这里加载的路径就是src/common/main.js
+```
+从上面大概能了解，webpack中，对js的引入，就是模块导入。webpack官方网站在less-loader和sass-loader中有这么一段相同话。
+> 只要加一个 ~ 前缀，告诉 webpack 去查询模块。
+
+因此，我们在css模块，或者html中只要在路径前面加一个~，实际上就是告诉webpack，按照模块加载方式来寻找对应的资源。
+以下代码我们还是假设@是src的别名。
+```css
+  <!-- 因此问题迎刃而解 -->
+  /*mixin.less中声明的该less函数，路径是在src/common/style/mixin.less*/
+  .bg-set(@img) {
+    background-image: url(@img);
+    background-repeat: no-repeat;
+    background-size: 100%;
+  }
+  /*在src/page/index/index.vue中使用该函数，图片存放在src/page/index/arrow.png*/
+  .bg-set('~@/page/index/arrow.png') // 可以 遇到~，模块方式加载，将@/page/index/arrow.png 解析为 src/page/index/arrow.png。
+
+  .bg-set('~./arrow.png') // 可以 遇到~，模块方式加载，将./arrow.png 按相对路径访问加载该模块资源，即在当前index文件夹中找到arrow.png。因此没问题。
+```
+至于改动less函数的方法。原理差不多
+
+```css
+  <!-- 对'url(@{img})'以模块方式搜索，因该函数被导入到当前less中，当传入./arrow.png时，以'~./arrow.png'的方式进行路径解析，跟上面第二种方式一致。 -->
+  background-image: ~'url(@{img})';
+```
+
+至此，webpack中的~，大家应该都清楚不少。如果有不对的地方，欢迎指正。
