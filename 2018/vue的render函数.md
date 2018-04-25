@@ -162,4 +162,146 @@ Vue.component('heading', {
 ![createElement返回的对象](./img/VNodes_createElement_return.jpg)
 
 ### VNodes(子节点)必须是唯一的
-这里的唯一是指，createElement返回的VNode对象具有
+这里的唯一是指，createElement返回的VNode对象是唯一的，使用上也是唯一的，应该看做一个实例对象。而不能当做引用对象使用。
+官方示例中，如下代码，同一个对象被多次引用使用，就是错误的。
+```js
+  render: function(createElement) {
+    var onlyOneObject = createElement('p','hi'); // 参数1，p标签。参数2，字符串，子节点
+    return createElement('div', [
+      onlyOneObject, onlyOneObject // 数组中引用同一个VNodes
+    ])
+  }
+```
+
+一定需要重复渲染相同的元素/组件（即VNodes），采用工厂函数来实现。
+```js
+  render: function(createElement) {
+    return createElement('div',
+      Array.apply(null, {length: 20}).map(function(){ // apply第二个参数接受数组或类数组生成一个20个长度的数组，map该数组，返回对应的一个应用map传递函数的20长度的数组内容。即[VNodes, VNodes, ..., VNodes]
+        return createElement('p', hi)
+      })
+    )
+  }
+```
+
+### Js代替模板引擎常用的功能实现
+
+#### v-if和v-for
+```html
+  <ul v-if="items.length">
+    <li v-for="item in items">{{item.name}}</li>
+  </ul>
+  <p v-else>No items found.</p>
+```
+
+```js
+// render函数中写法
+Vue.component('forComp', {
+  render: (createElement) => {
+    if (this.items.length) {
+      return createElement('ul', this.items.map((item,index) => {
+        return createElement('li', item.name)
+      }))
+    }else{
+      return createElement('p', 'No items found')
+    }
+  },
+  props: {
+    items: {
+      type: Array,
+      required: true
+    }
+  }
+})
+```
+#### v-model
+```html
+<input type="text" v-model="enterVal">
+```
+```js
+// render函数中写法
+Vue.component('oInput', {
+  render: (createElement) => {
+    var self = this;
+    return createElement('input', {
+      // DOM属性
+      domProps: {
+        value: self.enterVal
+      },
+      // 事件监听器，基于on
+      on:{
+        input: function(event){
+          self.$emit('input', event.target.value); // 这里派发一个input事件，实际上对应应该是如下Html代码结构
+        }
+      }
+    })
+  },
+  props: {
+    enterVal: {
+      type: [String, Number],
+      required: true
+    }
+  }
+})
+```
+
+```html
+<!-- 猜测，本质上v-model应该是vue的语法糖，实现监听input事件，然后得到最新输入的值，更新视图 -->
+<input type="text" v-on:input="">
+```
+
+#### 插槽
+```js
+  // 普通的插槽内容
+  render: function(createElement) {
+    return createElement('div', this.$slots.default)
+  }
+
+
+  // 生成带有作用域插槽的组件结构（可以传递数据的slot）
+  props: ['message'],
+  render: function(createElement) {=
+    return createElement('div', [
+      // $scopedSlots.default是一个函数，返回VNodes
+      this.$scopedSlots.default({
+        text: this.message
+      })
+    ])
+  }
+
+
+  // 向子组件中传递作用域插槽。
+  rende: function(createElement) {
+    return createElement('div', [
+      createElement('child', {
+        scopedSlots: {
+          default: function(props) {
+            return createElement('span', props.text)
+          }
+        }
+      })
+    ])
+  }
+```
+
+```html
+<!-- 上面3段渲染函数关于插槽的写法，对应的template结构应该是 -->
+  <div>
+    这里是slot的内容
+  </div>
+
+
+  <div>
+    <slot :text="message"></slot>
+  </div>
+
+
+  <div>
+    <child>
+      <span slot-scope="props">{{props.text}}</span>
+    </child>
+  </div>
+```
+
+## 总结
+本文主要是方便自己理解render函数究竟是做什么的，区分不同vue构建版本中使用render方式的差异，后半部分结合官方文档，了解了下render函数的其他简单用法。文章内容还是比较浅，建议大家去官方文档学习。
