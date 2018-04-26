@@ -134,7 +134,7 @@ export default {
     })
   },
   beforeRouteUpdate(to, from, next) => {
-    console.log('进了当前组件或组件仍存在，但内容已经不一样了，需要更新，会调用')
+    console.log('进了当前组件，或在当前组件打开子路由组件父组件仍存在，但内容已经不一样了，需要更新，会调用')
     // 如 home中打开A组件，/home -> /home/A。 回到home组件，/home/A -> /home
     next();
   },
@@ -144,3 +144,17 @@ export default {
   }
 }
 ```
+
+### 导航完整的解析流程
+导航触发，肯定是从一个路由地址跳往另一个。我们这里考虑这种情况`/home/A -> /home/B`，涉及到所有守卫;
+1. 触发A的`beforeRouteLeave`
+2. 触发全局的`beforeEach`
+3. 触发Home组件中的`beforeRouteUpdate`
+4. 触发B的独享路由守卫`beforeEnter`
+5. 解析异步组件
+6. 触发B的组件级守卫`beforeRouteEnter`
+7. 触发全局的`beforeResolve`
+8. 导航确认
+9. 触发全局的`afterEach`
+10. 触发DOM更新
+11. 组件实例创建完成，调用`beforeRouterEnter`中传递给`next`的回调函数，回调函数可传vm，即实例对象。
