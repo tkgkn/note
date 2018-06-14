@@ -3,13 +3,13 @@
 
 ## 先认识下Vue提供的版本
 
-### 完整版
+## 完整版
 包含了编译器的Vue代码。
 
-### 关于runtime版本
+## 关于runtime版本
 创建Vue实例，渲染并处理虚拟DOM等的代码，不包含编译器
 
-### 编译器是什么
+## 编译器是什么
 负责将模板字符串变异成Js渲染函数的代码
 ```js
 // 创建Vue实例，传入一个模板作为HTML渲染结构。需要编译器，在客户端进行模板编译的。
@@ -91,7 +91,7 @@ module.exports = {
 
 ## 关于render渲染函数
 
-### 某些环境中代码更简练
+## 某些环境中代码更简练
 > 这里引用官方文档的一个例子
 ```html
 <!-- 一个vue单文件 -->
@@ -161,7 +161,7 @@ Vue.component('heading', {
 在上例的代码中，我们只传递的2个参数，第二个传入的参数就是createElement函数的第三个参数，一个数组，数组中是多个对象，都是由createElement()函数返回的VNode节点。类似如下
 ![createElement返回的对象](./img/VNodes_createElement_return.jpg)
 
-### VNodes(子节点)必须是唯一的
+## VNodes(子节点)必须是唯一的
 这里的唯一是指，createElement返回的VNode对象是唯一的，使用上也是唯一的，应该看做一个实例对象。而不能当做引用对象使用。
 官方示例中，如下代码，同一个对象被多次引用使用，就是错误的。
 ```js
@@ -184,9 +184,9 @@ Vue.component('heading', {
   }
 ```
 
-### Js代替模板引擎常用的功能实现
+## Js代替模板引擎常用的功能实现
 
-#### v-if和v-for
+### v-if和v-for
 ```html
   <ul v-if="items.length">
     <li v-for="item in items">{{item.name}}</li>
@@ -214,7 +214,7 @@ Vue.component('forComp', {
   }
 })
 ```
-#### v-model
+### v-model
 ```html
 <input type="text" v-model="enterVal">
 ```
@@ -250,7 +250,7 @@ Vue.component('oInput', {
 <input type="text" v-on:input="">
 ```
 
-#### 插槽
+### 插槽
 ```js
   // 普通的插槽内容
   render: function(createElement) {

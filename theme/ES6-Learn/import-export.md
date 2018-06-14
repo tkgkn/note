@@ -56,7 +56,7 @@
 >目前前端开发大量涉及到node，比如webpack，所以有必要区分下两者。
 >需要明确，ES6的模块系统是静态编译阶段确立各个模块之间的关系，而AMD和CommonJs则是在代码运行时（动态）引入模块和确认模块关系。
 
-### ES6的静态分析和CommonJs动态加载
+## ES6的静态分析和CommonJs动态加载
 ```js
 // CommonJs下。可以根据代码运行的结果，动态引入需要加载的模块
 if( 1 > 2) {
@@ -82,7 +82,7 @@ import a
 
 ```
 
-### 加载模块的行为
+## 加载模块的行为
 ES6是对模块的绑定，链接到模块内部的活动状态变化。CommonJs是对模块代码的复制，一次性使用，不在关联模块内部。
 ```js
   //ES6模块
@@ -127,7 +127,7 @@ ES6是对模块的绑定，链接到模块内部的活动状态变化。CommonJs
 ```
 
 ## ES6模块使用方法
-### import
+## import
 ```js
 // 常见的使用方式，直接模块名称，通常会加载node_modules内的第三方模块
 import vue from 'vue'
@@ -140,7 +140,7 @@ import {mapGetters} from 'vuex'
 import * as newName from 'name.js'
 ```
 
-### export
+## export
 >注意：导出的是接口（引用），而非固定的值
 
 ```js
@@ -163,7 +163,7 @@ export a;
 export {a};
 ```
 
-### import和export同时使用
+## import和export同时使用
 ```js
   // moduleA.js
   var a = 1;
@@ -193,7 +193,7 @@ export {a};
 ```
 
 
-### import和export复合写法
+## import和export复合写法
 ```js
 // moduleB.js
 export {a, myName} from 'moduleA.js';
@@ -211,7 +211,7 @@ export {printName}
 export * from 'moduleA.js'
 ```
 
-### import()
+## import()
 ES6+，新提案中的，可以实现异步加载，运行时加载。目前需借助第三方编译使用，如webpack。该函数返回一个Promise。
 
 ```js

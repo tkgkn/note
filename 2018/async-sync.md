@@ -13,7 +13,7 @@
 >这里需要注意的是：异步函数的代码通常有2个部分组成，**现在运行的代码**和**将来运行的代码**，异步函数并不是整体都是异步的。
 
 
-#### 点击事件
+### 点击事件
 ```js
   function asyncFn1() {
     document.querySelector('.oDiv').addEventListener('click', function(){
@@ -23,7 +23,7 @@
 ```
 
 
-#### 定时器事件
+### 定时器事件
 ```js
   function asyncFn2() {
     setTimeout(function(){
@@ -33,7 +33,7 @@
 ```
 
 
-#### ajax事件
+### ajax事件
 ```js
   function asyncFn3() {
     // 假设引入了jQuery
@@ -51,7 +51,7 @@
   }
 ```
 
-#### Promise
+### Promise
 ```js
   // ES6中新增的Promise
   function asyncFn4() {

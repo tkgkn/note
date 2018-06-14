@@ -39,7 +39,7 @@
 ```
 这里的关键其实就是多了个~，因此顺腾摸瓜，从webpack官网查找~相关的，在官方中文文档的LOADERS列表中，关于less-loader中有介绍，~利用了webpack的高级特性，将查询参数（这里应该就是传递的图片路径）传递给webpack resolver，告诉webpack***以模块查找的方式对待该路径***。有点懵逼，没关系，看下例子。
 
-### 先看下js模块的的导入规则
+## 先看下js模块的的导入规则
 ```js
   <!-- 引用Vue模块，优先会从Node核心模块查找，找不到的话，就从node_modules查找 -->
   var vue = require('vue')
