@@ -139,3 +139,27 @@ ES6主要对数组扩充了很多方法。下面我们来一一了解和学习�
   let arr = new Array(3).fill({name: 'jack'}) // [{name: 'jack'},{name: 'jack'},{name: 'jack'}]
   arr[0].name = 'Ben' // [{name: 'Ben'},{name: 'Ben'},{name: 'Ben'}]
 ```
+
+## 数组实例的entries, keys, values
+均返回遍历器（Iterator），配合`for of`循环进行遍历。区别在于，entries对键值对遍历，keys对键遍历，values对值遍历。
+尽然是遍历器结构，也可以使用`next`方法进行一层层手动遍历。
+```js
+  for(let index of ['a', 'b'].keys()) {
+    console.log(index) // 0 1
+  }
+
+  for(let item of ['a', 'b'].values()) {
+    console.log(item) // 'a' 'b'
+  }
+
+  for(let [index,item] of ['a','b'].entries()) {
+    console.log(index, item) // 0 'a'  1 'b'
+  }
+```
+
+## 数组实例的Includes方法
+相比`indexOf`，语义化更强，而且可以识别NaN
+```js
+  [1, 2, 3].includes(2) // true
+  [1, 2, NaN].includes(NaN) // true indexOf无法匹配到NaN
+```
