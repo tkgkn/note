@@ -127,3 +127,45 @@ ES2017中新增的方法，多一个s，返回一个对象，对象包含了该�
   }
   Object.getOwnPropertyDescriptors(obj)
 ```
+
+## 操作原型对象__proto__
+`__proto__`只是浏览器普遍支持的一个私有属性，只部署在浏览器环境中。非标准，因此ES6为操作原型提供了如下方法
+`Object.getPrototypeOf(obj)`：获取原型对象
+`Object.setPrototypeOf(obj, prototype)`：设置某个对象的原型
+
+## super关键字
+`this`大家都知道用来指向函数所被调用时的对象。`super`则用来指向当前对象的原型对象
+```js
+  const proto = {
+    foo: 'hello'
+  }
+
+  const obj = {
+    foo: 'world',
+    find() {
+      return super.foo
+    }
+  }
+
+  Object.setPrototypeOf(obj, proto)
+  obj.find() // hello 因为这里的super指代obj的原型，而在上一步骤，我们设置了其原型对象未proto
+```
+
+## 对象的遍历keys,values,entries
+`Object.keys(obj)`：返回数组，包含可遍历的自身属性的键
+`Object.values(obj)`: 返回数组，包含可遍历的自身属性的值
+`Object.entries(obj)`：返回数组，包含可遍历的自身属性的键值对数组 [[key: val], [key: val]]
+
+## ES2018增加了对象的扩展运算符...
+*注意*解构的必须是最后一个参数，否则会报错
+```js
+  let {x, y, ...z} = {x: 1, y: 2, a: 3, b: 4}
+  console.log(z) // {a: 3, b: 4}
+```
+可以利用`...`实现对象的拷贝，类似`Object.assign()`
+```js
+  let z = {a: 3, b: 4};
+  let n = {...z};
+  console.log(n) // {a: 3, b: 4}
+```
+具体详细的看下阮一峰著《ES6入门》。
