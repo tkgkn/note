@@ -12,8 +12,8 @@ ES6 增加了 2 个新的数据结构，`Map`和`Set`，加上`Array`和`Object`
 *Iterator*的遍历过程：
 
 1.  创建一个指针对象，指向当前数据结构的起始位置。遍历器对象本质就是这么个指针对象。
-2.  第一次调用指针对象的`next`方向，将指针对象指向数据结构的第一个成员。
-3.  第二次调用指针对象的`next`方向，指针指向第二个成员。
+2.  第一次调用指针对象的`next`方法，将指针对象指向数据结构的第一个成员。
+3.  第二次调用指针对象的`next`方法，指针指向第二个成员。
 4.  不断调用`next`，直到指向数据结构的结束为止。
 
 每次调用`next`方法，都会返回当前成员的信息，即包含`value`和`done`两个属性的对象。其中`done`代表的是遍历是否结束，一个布尔值。
@@ -57,7 +57,7 @@ let obj = {
 }
 ```
 
-ES6 中有些数据结构原生具备`Iterator`接口，不用任何处理，就可被`for of`循环遍历。如下数据结构：
+ES6 中有些数据结构具备原生的`Iterator`接口，不用任何处理，就可被`for of`循环遍历。如下数据结构：
 `Array`，`Map`，`Set`，`String`，`TypedArray`，`函数的arguments对象`，`NodeList对象`
 
 ```js
@@ -103,4 +103,117 @@ console.log(iterator.next()) // {value: 0, done: false}
 console.log(iterator.next()) // {value: 1, done: false}
 console.log(iterator.next()) // {value: 2, done: false}
 console.log(iterator.next()) // {value: undefined, done: true}
+```
+
+_注意_：如果`[Symbol.iteratro]`方法对应的不是返回遍历器的函数，则会报错
+
+```js
+  var obj = {}
+  obj[Symbol.iterator] = () => 1
+  [...obj] //  TypeError: [] is not a function  我这里报错的是：Unexpected token
+```
+
+## 调用 Iterator 接口的场景
+
+除了`for...of`循环会调用之外。
+比如：_解构赋值_
+
+```js
+let set = new Set()
+  .add('a')
+  .add('b')
+  .add('c')
+let [x, y] = set // x = 'a'  y = 'b'
+let [first, ...rest] = set // first = 'a'  rest = ['b', 'c']
+```
+
+比如：_扩展运算符_
+
+```js
+var str = 'hello'
+;[...str] // ['h', 'e', 'l', 'l', 'o']
+```
+
+可以利用扩展运算符将任何布置了`iterator`接口的数据结构转为数组。
+
+比如：_yield\*_
+
+```js
+let generator = function*() {
+  yield 1
+  yield* [2, 3, 4]
+  yield 5
+}
+let iterator = generator()
+iterator.next() // {value: 1, done: false}
+iterator.next() // {value: 2, done: false}
+iterator.next() // {value: 3, done: false}
+iterator.next() // {value: 4, done: false}
+iterator.next() // {value: 5, done: false}
+iterator.next() // {value: undefined, done: false}
+```
+
+## 字符串 Iterator 接口
+
+字符串也是一个类似数组的对象，有`length`属性，可以以数组下标来访问对应的字符。
+
+```js
+var str = 'hi'
+var iterator = str[Symbol.iterator]()
+iterator.next() // {value: 'h', done: false}
+iterator.next() // {value: 'i', done: false}
+iterator.next() // {value: undefined, done: false}
+```
+
+## Iterator 接口和 Generator 函数
+
+使用`Generator`函数来实现`Symbol.iterator`方法最简单。
+
+```js
+  let myIterable = {
+    [Symbol.iterator]: function* () {
+      yield 1;
+      yield 2;
+      yield 3;
+    }
+  }
+  [...myIterable] // [1, 2, 3]
+```
+
+```js
+let obj = {
+  *[Symbol.itertor]() {
+    yield 'hello'
+    yield 'world'
+  }
+}
+for (let item of obj) {
+  console.log(item)
+}
+```
+
+## 关于对象和 Iterator
+
+首先，对象不可以使用`for...of`，除非布置了`Iterator`接口。通常只能使用`for...in`来循环，但只能遍历键名。
+
+如果要使用`for of`来遍历对象，变通方法：
+方法 1： 遍历`Object.kesy(obj)`生成的数组
+方法 2： 利用`Generator`函数将对象包装一下。
+
+```js
+let obj = {
+  name: 'jack',
+  age: 18
+}
+
+// 这步生成一个Generate函数
+function* generate(obj) {
+  for (let k in obj) {
+    yield [k, obj[k]]
+  }
+}
+
+for (let [k, v] of generate(obj)) {
+  console.log(k, v)
+}
 ```
