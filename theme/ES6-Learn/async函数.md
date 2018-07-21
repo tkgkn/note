@@ -205,7 +205,7 @@ f().then(v => {
 
 ## 错误处理
 
-若`await`后面的异步操作出错，等同于`async`函数返回的`Promise`对象呗`reject`
+若`await`后面的异步操作出错，等同于`async`函数返回的`Promise`对象`reject`。
 
 ```js
 async function f() {
@@ -215,5 +215,150 @@ async function f() {
 }
 f()
   .then(v => console.log(v))
-  .catch(e => console.log(e)) // 被这里捕获 出错了
+  .catch(e => console.log(e)) // 同步报错被这里捕获 出错了
 ```
+
+这里，因为`new Promise`代码部分是立即执行的，所以报错可以被`catch`到。我们可以放在`try catch`里。
+
+```js
+async function f() {
+  try {
+    await new Promise(function(resolve, reject) {
+      throw new Error('出错')
+    })
+  } catch (e) {
+    console.log(`e: ${e}`) // e: Error: 出错
+    return await 'hello world'
+  }
+}
+f().then(
+  v => {
+    console.log(`v: ${v}`) // v: hello world
+  },
+  err => {
+    console.log(err)
+  }
+)
+```
+
+执行异步代码的那部分同步报错正常捕捉，进入`catch`，返回值作为`async`返回的`Promise`的`resolve`值。如果有多个`await`异步操作的话，都可以放到`try`里面，防止异步操作本身出错。
+
+```js
+function test1() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject('err1')
+    }, 3200)
+  })
+}
+function test2() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      reject('err2')
+    }, 6200)
+  })
+}
+
+async function myFn() {
+  try {
+    await test1() // 等待3.2s后reject，catch捕捉到错误。因test1函数返回的Promise变为reject，使得myFn返回的Promise状态也变为reject，函数运行终止了。
+    await test2()
+  } catch (err) {
+    console.log(`catch到的${err}`) // err1
+  }
+}
+
+myFn()
+  .then(v => {
+    console.log(v)
+  })
+  .catch(e => {
+    console.log(`catch ${e}`)
+  })
+```
+
+## 注意点或者说是技巧
+
+1.  尽量把`await`包在`try catch`中，因为`await`命令后的`Promise`对象决议的可能是`reject`。上面的几个代码示例已经演示过。
+2.  多个`await`命令后的*异步操作*如果没有继发关系（1 个结束后另 1 个跟上），最好是同时触发，节约时间。
+
+```js
+  // 这就是继发了，只能等到第一个await后执行完，才会去执行第二个await
+  let foo = await getFoo()
+  let bar = await getBar()
+```
+因此改为同时触发的话：
+```js
+  let [foo, bar] = await Promise.all([getFoo(), getBar()])
+  // 或者以普通函数方式直接调用赋值给其他变量
+  let fooPromise = getFoo()
+  let barPromise = getBar()
+  let foo = await fooPromise
+  let bar = await barPromise
+```
+3. `awati`只能用在`async`函数中
+```js
+  // 错误
+  async function test() {
+    let arr = [, ,]
+    arr.forEach(function(){
+      await // do ...
+    })
+  }
+
+  // 错误 这样可能不会正常工作，因为会并发执行数组中的每个元素。
+  function test(){
+    let arr = [, ,]
+    arr.forEach(async function(){
+      await // do ...
+    })
+  }
+```
+需要并发执行的话，考虑用`Promise.all`和先执行赋值给其他变量的方式
+利用`esm加载器`，可以是`await`出现在`async`外。了解一下即可。
+
+## async的原理
+实际上就是返回一个`Promise`，生成一个`Generate`函数，自动执行`next`。
+```js
+  async function fn(){
+
+  }
+  // 等同于
+  function fn(args) {
+    return spawn(function* () {
+      // ...
+    })
+  }
+
+  // spawn的实现
+  fuction spawn(generate) {
+    return new Promise(function(resolve, reject) {
+      const gen = generate()
+      function auto(nextFn){
+        let next;
+        try {
+          next = nextFn() // 调用next返回的yield后表达式的值和是否已完成所有步骤的布尔值
+        } catch(e) {
+          return reject(e)
+        }
+        if(next.done) {
+          return resolve(next.value)
+        }
+        // 不断的执行gen.next()方法，直到done = false 或者 抛错停止gen内部所有步骤
+        Promise.resolve(next.value).then(function(v) {
+          auto(function() {
+            return gen.next(v)
+          })
+        }, function(e) {
+          auto(function(){
+            return gen.throw(e)
+          })
+        })
+      }
+      auto(function() {
+        return gen.next(undefined) // 首次next
+      })
+    })
+  }
+```
+`async`的基本概念和使用就到这里。还有其他的深入的部分，看下ES6入门。
