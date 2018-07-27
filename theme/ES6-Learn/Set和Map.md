@@ -1,5 +1,19 @@
 # Set和Map
 ES6提供的新的数据结构。
+先看一下传统对象作为数据结构的问题。
+```js
+  let map = Object.create(null)
+  map[5] = 'foo'
+  console.log(map['5']) // foo
+```
+```js
+  let map = Object.create(null),
+    key1 = {},
+    key2 = {};
+  map[key1] = 'foo'
+  console.log(map[key2]) // foo
+```
+属性名一律转换为字符串，所以`5 => '5'`，`key1 = {} => [object Object]`。所以，这类问题在大型应用中，难以确认和调试。
 
 # 关于Set
 类似数组，但成员的值都是唯一的，不重复。
