@@ -189,6 +189,54 @@ const obj = {
 Object.setPrototypeOf(obj, proto)
 obj.find() // hello 因为这里的super指代obj的原型，而在上一步骤，我们设置了其原型对象未proto
 ```
+_注意_，只能在对象属性简写的方式下使用`super`，如下声明一个具名方法find的方式，则会报错
+```js
+const proto = {
+  foo: 'hello'
+}
+
+const obj = {
+  foo: 'world',
+  find: function() {
+    return super.foo
+  }
+}
+
+Object.setPrototypeOf(obj, proto)
+obj.find() // 'super' outside of function or class
+```
+_注意_：`super`的一个使用场景：
+在多级继承时，`super`引用非常有用。如下情况，如果利用`Object.getPropertyOf()`则会出问题：
+```js
+  let person = {
+    getGreeting() {
+      return 'Hello'
+    }
+  }
+  let friend = {
+    getGreeting() {
+      return Object.getPropertyOf(this).getGreeting.call(this) + ', hi'
+    }
+  }
+  Object.setPropertyOf(friend, person);
+
+  let relative = Object.create(friend)
+  console.log(person.getGreeting()); // Hello
+  console.log(friend.getGreeting()); // Hello, hi
+  console.log(relative.getGreeting()); // 报错了
+```
+_报错原因_：`relative.getGreeting()`这句话，`this`指向就是`relative`，所以调用函数`getGreeting()`后，`Object.getPropertyOf(this)`返回的原型对象就是`friend`，然后`friend.getGreeting.call(this)`，这句话，后面的`this`依旧还是刚才的`relative`，所以相当于再次调用`getGreeting`方法，且`this`绑定到`relative`上，等于重复递归调用，栈溢出，报错！
+_解决办法_：
+```js
+  let friend = {
+    getGreeting() {
+      return super.getGreeting() + ', hi'
+    }
+  }
+```
+
+## 方法内部属性[[HomeObject]]
+ES6中，规范了对象的方法，方法拥有一个内部属性`[[HomeObject]]`，指向该方法所属的对象
 
 ## 对象的遍历 keys,values,entries
 

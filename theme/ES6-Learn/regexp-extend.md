@@ -33,3 +33,6 @@ ES6中支持传入第二个参数，也就是修饰符，会替换掉第一个�
   /^\uD83D/.test('\uD83D\uDC2A') // true 这里返回true，说明并没有把超出\uFFFF的Unicdoe字符正常匹配。
   /^\uD83D/u.test('\uD83D\uDC2A') // false 使用u修饰符，正则结果正常。
 ```
+
+## flags属性
+获取正则表达式的标志字符串如`/abs/g`的`g`，`reg.flags`就可以获取到`g`了，`reg.source`获取到`abs`

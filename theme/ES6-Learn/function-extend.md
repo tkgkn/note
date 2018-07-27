@@ -141,6 +141,17 @@ function test(a, b, ...c) {
 test(1, 2, 3, 4, 5, 6)
 ```
 
+_注意_，不能在`setter`属性中使用`剩余参数`，`setter`被限定只能使用单个参数了！
+
+```js
+  let obj = {
+    // 会导致报错
+    set name(...value) {
+
+    }
+  }
+```
+
 ## 展开运算符
 
 用于展开数组，也使用`...`三个点来表示。
@@ -162,6 +173,40 @@ a.name(
 
   function() {}
 ).name // ''
+```
+
+而`getter`和`setter`函数，则需要调用`getOwnPropertyDescriptor`先获取到某个对应属性的属性描述符，再访问其`get`和`set`
+
+```js
+var person = {
+  get firstName() {
+    return 'Nicholas'
+  },
+  sayName: function() {
+    console.log(this.name)
+  }
+}
+var descriptor = Object.getOwnPropertyDescriptor(person, 'firstName')
+console.log(descriptor.get.name) // get firstName
+```
+
+_注意_：函数表达式的方式和具名函数表达式的方式
+
+```js
+var dosomething = function doSomethingElse() {
+  //
+}
+dosomething.name // doSomethingElse
+
+var dosomething = function() {}
+dosomething.name // dosomething
+```
+
+_注意_：通过`bind`创建的函数，会待用`bound`前缀
+
+```js
+var doSomething = function() {}
+console.log(doSomething.bind().name) // bound doSomething
 ```
 
 ## 箭头函数=>
@@ -207,6 +252,7 @@ var f = () => ({ a: 1 })
 ```
 
 ### 关于 this
+箭头函数没有自己的`this`，它使用的`this`是通过作用域链查找到上层的`this`来使用的，也就是词法作用域（静态作用域，书写代码时确定的）下的父函数的`this`。而通过`call`，`apply`，`bind`改变`this`都是无效的。
 
 ```js
 function f() {
@@ -236,17 +282,61 @@ function foo() {
 
 var f = foo.call({ id: 1 })
 
-var t1 = f.call({ id: 2 })()() // id: 1
-var t2 = f().call({ id: 3 })() // id: 1
-var t3 = f()().call({ id: 4 }) // id: 1
+var t1 = f.call({ id: 2 })()() // id: 1 无效的this绑定手段
+var t2 = f().call({ id: 3 })() // id: 1 无效的this绑定手段
+var t3 = f()().call({ id: 4 }) // id: 1 无效的this绑定手段
 
 // 上述结果全部打印1
 ```
+最开始的`foo`函数已经绑定了`this`指向，也就是`{id: 1}`，之后每次的调用，都是返回一个箭头函数，箭头函数本身没有`this`，根据作用域链向上查找，使用包裹它的函数的`this`，而强制绑定`this`的手段对箭头函数来说也是无效的，所以，不管怎么调用，`f`函数的`this`都是定下过的了。
 
-因为所有的 this，都是最外层，也就是`foo(){}`的 this。这里的`this`在`foo.call({id: 1})`就确认了。然后内层无论嵌套多少，因为箭头函数的关系，都会引用外层的`this`，即都是`{id: 1}`。  
-看到这里，箭头函数的 this 指向，可以这么理解：`箭头函数的this，指向其所在的最近外层作用域`
+### 关于arguments
+箭头函数没有自己的`arguments`对象，但是可以访问，访问到的是包含它的函数的`arguments`对象。
+```js
+function test(n) {
+  return () => arguments[0] + 1
+}
+test(5)() // 6
+```
 
-### 尾调用
+## new.target 元属性
+
+在 ES6 之前，判断函数的调用方式是普通调用还是构造调用（即 new），我们都是通过`instanceof`来检查。
+
+```js
+function Person(name) {
+  if (this instanceof Person) {
+    this.name = name
+  } else {
+    throw new Error('普通调用')
+  }
+}
+var person = new Person('Jack')
+var person = Person('Jack') // 普通调用
+```
+
+但是上述方法并不是一定准确，如果是通过`call`，`apply`之类的绑定`this`指向了，则判断不准。
+
+```js
+var notNewPerson = Person.call(person, 'Mike') // 不会提示 普通调用
+```
+
+所以 ES6 中，提供饿了一个 new.target 属性来判断，该属性会返回构造调用时的构造器（也就是`new`后的函数）。
+
+```js
+function Person(name) {
+  console.log(new.target) // 打印出构造函数本身
+  if(typeof new.target !== 'undefined') {
+    this.name = name
+  } else {
+    throw new Error('普通调用')
+  }
+}
+var p = new Person()
+var p2 = Person.call(p, 'Jack') // 正常报错
+```
+
+## 尾调用
 
 函数的最后一步是返回调用另一个函数就是尾调用。  
 主要用来优化代码，减少调用栈，使得调用栈永远只有最后一个函数，节约内存。代码举个例子。
@@ -277,7 +367,7 @@ function addOne(a) {
 }
 ```
 
-### 尾调用和递归
+## 尾调用和递归
 
 递归就是函数调用函数自身，会同时保存很多调用栈，容易出现内存溢出。  
 结合尾调用的优点，即函数最后一步返回另一函数的调用（无任何其他操作），保证调用栈永远只保存一个，这样就不会出现内存溢出。

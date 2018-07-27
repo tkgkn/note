@@ -83,6 +83,8 @@ ES6主要对数组扩充了很多方法。下面我们来一一了解和学习�
   console.log(filterArr) // [false, true, true]
 ```
 
+### 接受第三个参数，一个`this`指向
+
 ## 数组实例方法copyWithin()
 将数组中某一段截取到该数组的指定位置，不改变数组长度，但数组以改变。类似复制再选中一部分覆盖。`copyWithin(target, [start], [end])`
 ```js
