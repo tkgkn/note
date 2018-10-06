@@ -2,6 +2,7 @@ const http = require('http')
 const fs = require('fs')
 
 const app = http.createServer((req, res) => {
+  console.log(req.headers.host)
   if (req.url === '/') {
     res.writeHead(302, {
       Location: '/new'
