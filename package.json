@@ -1,0 +1,8 @@
+{
+  "name": "Notes",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:c690554125/Notes.git",
+  "license": "MIT",
+  "devDependencies": {}
+}
