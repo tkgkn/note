@@ -31,8 +31,8 @@ const app = http.createServer((req, res) => {
 
       // 'Cache-Control': 'max-age=20, s-maxage=20, no-store' // 因为设置了no-store，则所有的都不让缓存，所以max-age和s-maxage都失效了
 
-      'Cache-Control': 's-maxage=200',
-      'Vary': 'X-Test-Cache' // 只有具备X-Test-Cache才会匹配到代理缓存，但是X-Test-Cache只是个请求头，其对应的值，只有相同时，才会使用缓存。引用场景，根据传入的头和参数来确定获取的页面是移动还是PC，或者是中文还是英文。
+      'Cache-Control': 'max-age=5',
+      // 'Vary': 'X-Test-Cache' // 只有具备X-Test-Cache才会匹配到代理缓存，但是X-Test-Cache只是个请求头，其对应的值，只有相同时，才会使用缓存。引用场景，根据传入的头和参数来确定获取的页面是移动还是PC，或者是中文还是英文。
     })
     wait(2).then(() => {
       res.end('success')
