@@ -17,7 +17,7 @@
     function doReq() {
       fetch('/data', {
         headers: {
-          // 'X-Test-Cache': index++
+          'X-Test-Cache': index++
         }
       }).then(function (res) {
         return res.text()
