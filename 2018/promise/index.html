@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>promise1</title>
+  </head>
+  <body>
+    <script>
+      // 1、promise构造函数接收一个函数，函数接收名为resolve的函数
+      // 2、resolve函数接收最终值，传递给then方法注册的onfulfilled
+      /* 
+    function MyPromise(fn) {
+      var value = null;
+      var deferred = null;
+
+      function resolve(finalValue) {
+        value = finalValue
+        deferred(value)
+      }
+
+      this.then = function(onFulfilled) {
+        deferred = onFulfilled
+      }
+
+      fn(resolve)
+    }
+     */
+      // 这时调用，会报错，deferred不存在。
+      // 因为执行构造函数时，先运行resolve，此时deferred并未注册then传递的函数，而是在后面调用then才执行的。
+      /* 
+    new MyPromise(function(resolve){
+      resolve(1)
+    }).then(function(v) {
+      console.log(1)
+    })
+     */
+    </script>
+    <script>
+      // 针对上面的问题，我们如下方`式解决，让deferred的执行变为异步，放到下一轮事件循环去做，这样then因为是同步注册，就会先注册fulfilled函数。
+      /* 
+    function MyPromise(fn) {
+      var value = null;
+      var deferred = null;
+
+      function resolve(finalValue) {
+        value = finalValue
+        setTimeout(function(){ // 这里异步
+          deferred(value)
+        })
+      }
+
+      this.then = function(onFulfilled) {
+        deferred = onFulfilled
+      }
+
+      fn(resolve)
+    }
+
+    new MyPromise(function(resolve){
+      resolve(1)
+    }).then(function(v) {
+      console.log(1)
+    })
+     */
+    </script>
+    <script>
+      // 上面的写法，无法将then和promise分离，必须实例化完立刻调用then。而我们希望一旦promise决议，在任何时候都可以调用then。
+      // 一旦Promise resolved了，我们就可以去执行注册过的onFulFilled函数
+      /* 
+      function MyPromise(fn) {
+        var value = null;
+        var deferred = null;
+        var state = 'pending'; // 增加状态标志
+
+        function resolve(finalValue) {
+          value = finalValue;
+          state = 'resolved'; // resolve的时候，就是状态从pending -> resolved
+
+          // 如果状态已经resolved，延迟对象已经有注册过，我们就可以执行
+          if (deferred) {
+            deferred(value);
+          }
+        }
+
+        function handle(onFulfilled) {
+          deferred = onFulfilled;
+          if (state === 'pending') {
+            return;
+          }
+          deferred(value);
+        }
+
+        this.then = function(onFulfilled) {
+          handle(onFulfilled); // then注册的函数，我们需要根据注册时promise的当前状态来做不同的处理
+        };
+
+        fn(resolve);
+      }
+
+      var p = new MyPromise(function(resolve) {
+        setTimeout(function(){
+          resolve(1);
+        }, 1000)
+      });
+
+      p.then(function(v) {
+        console.log(1);
+      });
+       */
+    </script>
+    <script>
+      // 原生的promise应当支持链式写法，promise.then(fn(v)).then(fn())
+      // 也就是说then是返回一个promise
+      /*       
+      function MyPromise(fn) {
+        var value = null;
+        var deferred = null;
+        var state = 'pending'; // 增加状态标志
+
+        function resolve(finalValue) {
+          value = finalValue;
+          state = 'resolved'; // resolve的时候，就是状态从pending -> resolved
+
+          // 如果状态已经resolved，延迟对象已经有注册过，我们就可以执行
+          if (deferred) {
+            handle(deferred)
+          }
+        }
+
+        function handle(handler) {
+          if (state === 'pending') {
+            // pending状态，保存deferred
+            deferred = handler // 这里保存的时前一个promise.then的onFulfilled和下一个promise的resolve
+            return;
+          }
+          // 如果前一个Promise.then中未注册任何函数，需要把前一个Promise的终值传递给下一个promise
+          if (!handler.onFulfilled) {
+            handler.resolve(value);
+            return
+          }
+
+          // 如果前一个promise.then中注册了onFulfilled函数，执行，并将执行后的结果值传递给下一个promise
+          var prePromiseRet = handler.onFulfilled(value)
+          handler.resolve(prePromiseRet)
+        }
+
+        this.then = function(onFulfilled) {
+          // 返回一个promise
+          return new MyPromise(function(resolve) {
+            // 接收一个函数，函数接收resolve，注意这里接收的resolve相对于MyPromise这段代码的实现来说，是第二个（也就是then返回的）的promise。
+            // 还是交给handle中间处理函数来处理
+            // 这里我们先需要处理前一个promise，一旦前一个promise resolved，我们要调用onFulfilled(前一个promise.then(onFulfilled))
+            // 后一个Promise，得等到前一个promise决议后才开始，前一个Promise的终值，需要传递给后一个promise，resolve(prevPromiseFinalValue)
+            // 所以我们把前一个promise.then注册的onFulfilled和后一个Promise的resolve传递给handle来处理，具体逻辑由handle来写
+            handle({
+              onFulfilled: onFulfilled,
+              resolve: resolve
+            });
+          });
+        };
+
+        fn(resolve);
+      }
+
+      var p = new MyPromise(function(resolve){
+        resolve(1)
+      })
+      p.then(function(v) { // 第一个Promise既可以传onFulfilled监听函数，也可以不传了。
+        console.log(v)
+        return v + 1 // 如果这里返回的不是一个终值，而是一个promise，应该怎么办
+      }).then(function(v) {
+        console.log(v)
+      })
+ */
+    </script>
+    <script>
+      // 解决上一段代码提出的，如果then中onFulfilled返回的是一个promise的话，怎么办，按照PromiseA+的规范
+      // 这里我们再加上reject的处理
+
+      function MyPromise(fn) {
+        var value = null;
+        var deferred = null;
+        var state = 'pending';
+
+        function resolve(finalValue) {
+          // 防止resolve的时候出问题
+          try {
+            if (finalValue && typeof finalValue.then === 'function') {
+              // 如果是一个promise的话，我们需要按照promise的正常调用注册onFulfilled，直到返回一个最终值
+              finalValue.then(resolve, reject);
+              // 这里这么写，是希望能够将promise展开，获取到它的最终值，而resolve方法本身，对终值的类型有做判断，终值如何处理，promise如何处理。
+            }
+            value = finalValue;
+            state = 'resolved';
+            if (deferred) {
+              handle(deferred);
+            }
+          } catch (error) {
+            reject(error);
+          }
+        }
+
+        function reject(reason) {
+          state = 'rejected';
+          value = reason;
+          if (deferred) {
+            handle(deferred);
+          }
+        }
+
+        function handle(handler) {
+          if (state === 'pending') {
+            deferred = handler;
+            return;
+          }
+
+          var callback;
+          if (state === 'resolved') {
+            callback = handler.onFulfilled;
+          } else {
+            callback = handler.onRejected;
+          }
+
+          if (!callback) {
+            if (state === 'resolved') {
+              handler.resolve(value);
+            } else {
+              handler.reject(value);
+            }
+            return;
+          }
+
+          try {
+            var prePromiseRet = callback(value);
+            handler.resolve(prePromiseRet);
+          } catch (error) {
+            handler.reject(error);
+          }
+        }
+
+        this.then = function(onFulfilled, onRejected) {
+          return new MyPromise(function(resolve, reject) {
+            handle({
+              onFulfilled: onFulfilled,
+              resolve: resolve,
+              onRejected: onRejected,
+              reject: reject
+            });
+          });
+        };
+
+        fn(resolve);
+      }
+
+      
+    </script>
+  </body>
+</html>

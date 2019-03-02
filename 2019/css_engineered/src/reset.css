@@ -1,0 +1,6 @@
+/* reset样式，通过postcss-import合并到加载它的样式中 */
+
+* {
+  padding: 0;
+  margin: 0;
+}

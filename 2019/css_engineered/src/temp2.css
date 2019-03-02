@@ -1,0 +1,17 @@
+@import "./reset.css";
+
+.box {
+  box-shadow: 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+body{
+  margin: 10px 20px 30px 40px
+}
+
+body{
+  color: #fff;
+}
+
+body{
+  background-color: #eee;
+}
