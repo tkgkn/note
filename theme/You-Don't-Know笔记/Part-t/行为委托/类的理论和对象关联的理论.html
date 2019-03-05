@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 伪代码 类理论 -->
+    <script>
+    class Task {
+        id;
+
+        // 构造函数Task()
+        Task(ID) {
+            id = ID;
+        }
+
+        outputTask() {
+            output(id);
+        }
+    }
+
+    class XYZ inherits Task {
+        label;
+
+        // 构造函数
+        XYZ(ID, label) {
+            super(ID);  // 子类构造函数可以直接用super调用父类构造函数
+            label = Label;
+        }
+
+        outputTask(){
+        	super();
+        	output(label);
+        }
+    }
+    </script>
+
+    <!-- 伪代码 委托理论 -->
+    <script>
+    	Task = {
+    		setID: function(ID){
+    			this.id = ID;
+    		},
+
+    		outputID: function(){
+    			console.log(this.id);
+    		}
+    	};
+
+    	// 让XYZ委托Task
+    	XYZ = Object.create(Task);
+    	XYZ.prepareTask = function(ID,Label){
+    		this.setID(ID);
+    		this.label = Label;
+    	};
+
+    	XYZ.outputTaskDetails = function(){
+    		this.outputID();
+    		console.log(this.label)
+    	}
+
+    	// ABC = Object.create(Task);
+    	// ABC ... = ...
+    </script>
+    <p>委托模式的代码，有几点跟类继承的不太一样</p>
+    <ul>
+    	<li>1、id和label数据成员是直接存储在XYZ对象上，而不是Task上，通常来说，在[[Prototype]]委托中最好把状态保存在委托者（XYZ）身上，而不是委托目标（Task）上。</li>
+    	<li>2、类继承模式里面，父类和子类都有同一个方法outputTask，这样可以利用重写（多态）的优势。在委托行为中则恰好相反，尽量避免[[Prototype]]链的不链层中使用相同的命名。否则就需要使用笨拙且脆弱的语法（显示伪多态Obj.method.call(otherObj,...,...)）来消除歧义。</li>
+    	<li>this.setID(ID)，XYZ会现在自身寻找这个方法，找不到，沿着原型链向上查找，通过[[Prototype]]委托关联到了Task对象上，招到了。然后虽然方法在Task上，但是XYZ调用这个方法，触发this的隐式绑定规则，也就是让this绑定到了XYZ身上，这正是我们需要的。</li>
+    	<li>委托是在内部实现，而不是直接暴露在外部的，在之前的例子中我们并没有让开发者通过API直接调用XYZ.setID()，虽然你可以这么做，但是会让别的使用者困惑。</li>
+    </ul>
+
+    <p>会存在A、B两个对象互相引用的情况，这会造成循环委托。如果一个方法在2个对象上都不存在，就会造成无限递归循环。A找B的prototype，找不到，然后B的prototype找A的prototype，然后再次深层找B的prototype。</p>
+    <p>因此这是禁止的。</p>
+</body>
+
+</html>

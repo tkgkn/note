@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>假设有个对象a，如何寻找对象a的委托对象（如果存在的话，即找到a的原型链）</p>
+    <p>在传统的面向对象里，检查一个实例（JS中就是对象）的继承祖先（JS中的委托关联），通常叫做反省，或者反射</p>
+    <script>
+    function Foo() {
+        // ...
+    }
+
+    Foo.prototype.blah = function() {
+
+    }
+
+    var a = new Foo();
+    </script>
+    <p>如果站在类的角度来判断</p>
+    <script>
+    a instanceof Foo; // true  在a的整条prototype链中是否有指向Foo.prototype的对象
+    // 这个方法只能处理对象a和函数（带.prototype引用的Foo）之间的关系
+    // 如果要判断2个对象之间是否通过prototype链关联，只用instanceof无法实现。
+    </script>
+    <p>内置的bind()函数来生成一个硬绑定函数的话，该函数是没有.prototype属性的，这个函数上使用instanceof的话，目标函数的.prototype会代替硬绑定函数的.prototype。如下例</p>
+    <script>
+    function test() {
+        console.log(this.name);
+    }
+    var obj = {
+        name: "hello"
+    };
+    var study = test.bind(obj);
+    console.log(study.prototype); // undefined
+    console.log(test.prototype); // Object
+    var newObj = new study();
+    console.log(newObj.constructor); // test()
+    console.log(newObj instanceof study); // true 估计是因为查找原型链的缘故，study.prototype并不存在。
+    console.log(newObj instanceof test); // true
+    </script>
+    <p>重申，instanceof用来判断对象和函数的关系，如果妄图判断2个对象之间的关系。</p>
+    <script>
+    function isRelatedTo(o1, o2) {
+        function F() {};
+        F.prototype = o2;
+        return o1 instanceof F;
+        // o1并不是由函数F构造或者继承，这么判断很愚蠢，也容易造成误解。
+    }
+
+    var a = {};
+    var b = Object.create(a);
+    isRelatedTo(b, a);
+    </script>
+    <p>第二种判断prototype反射的方法，更加简洁</p>
+    <script>
+    function Foo() {
+        // ...
+    }
+
+    Foo.prototype.blah = function() {
+
+    }
+
+    var a = new Foo();
+    Foo.prototype.isPrototypeOf(a); // true  在a的整条作用域链中是否出现过Foo.prototype
+    </script>
+    <p>isPrototypeOf比instanceof方法好在，不用间接引用Foo函数去判断Foo.prototype和a的关系，而是直接判断。而且可以判断2个对象之间的关系</p>
+    <script>
+    b.isPrototypeOf(a); // a的原型链上，是否出现过b
+    </script>
+    <p>获取一个对象的prototype链，ES5中标准的方法是getPrototypeOf</p>
+    <script>
+    function Foo() {
+        // ...
+    }
+
+    Foo.prototype.blah = function() {
+
+    }
+
+    var a = new Foo();
+    console.log(Object.getPrototypeOf(a)); // Foo
+    console.log(Object.getPrototypeOf(a) === Foo.prototype); // true
+
+    // 绝大多数浏览器也支持一种非标准的方法来访问内部的prototype属性
+   	console.log(a.__proto__ === Foo.prototype); // true
+    </script>
+    <p>__proto__跟.constructor一样，存在于内置的Object.prototype中，不可枚举，且更像一个getter/setter</p>
+    <script>
+    	// __proto__的实现
+    	Object.defineProperty(Object.prototype, "__proto__",{
+    		get: function(){
+    			return Object.getPrototypeOf(this);
+    		},
+
+    		set: function(o){
+    			// ES6中的setPortotype
+    			Object.setPrototypeOf(this, o);
+    			return o;
+    		}
+    	})
+    </script>
+</body>
+
+</html>

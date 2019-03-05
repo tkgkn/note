@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <h3>复制对象</h3>
+    <p>没有想象的那么简单</p>
+    <script>
+    function anotherFunction() {};
+    var anotherObject = {
+        c: true
+    };
+    var anotherArray = [];
+    var myObject = {
+        a: 2,
+        b: anotherObject, // 引用，非复本
+        c: anotherArray, // 引用，非复本
+        d: anotherFunction
+    };
+    anotherArray.push(anotherObject, myObject);
+    </script>
+    <p>先分辨是浅复制还是深复制</p>
+    <p>如果是浅赋值，比如新对象中a的值会复制旧对象中a的值，也就是2。</p>
+    <p>但b,c,d三个属性其实只是3个引用，引用的位置和旧对象中是一样的。对于深复制来说，除了复制myObject以外还会复制anotherObject和anotherArray，这时出现一个问题，anohterArray引用了anotherObject和myObject，所以有要复制myObject，然后就循环引用了。</p>
+    <p>应该检测循环引用并终止循环，还是应当直接报错或者是选择其他方法</p>
+    <p>有些人会用toString()方法来序列化一个函数的源代码。</p>
+    <p>许多JS框架提出了自己解决办法，但是没有一个标准</p>
+    <script>
+    // 对于JSON安全的对象来说，有一种巧妙的复制方法
+    var newObj = JSON.parse(JSON.stringify(someObj)); // 前提是保证json对象时安全的。
+    </script>
+    <script>
+    // 在ES6中定义了Object.assign方法来实现浅复制
+    // 第一个参数是目标对象，后面跟多个源对象或一个。遍历源对象中的所有可枚举属性，并把他们复制到目标对象
+    var newObject = Object.assign({}, myObject);
+    console.log(newObject.a); //2
+    console.log(newObject.b === anotherObject);
+    console.log(newObject.c === anotherArray);
+    console.log(newObject.d === anotherFunction);
+    </script>
+</body>
+
+</html>

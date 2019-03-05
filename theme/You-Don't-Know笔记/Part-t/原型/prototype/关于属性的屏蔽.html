@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>给一个对象设置属性并不是仅仅添加一个新属性或者修改已有的属性值而已。</p>
+	<script>
+		myObject.foo = "bar";
+		// 如果myObject对象包含了命名为foo的普通数据访问属性，这条赋值语句只会修改已有的属性值
+		// 如果foo不是直接存在于myObject中，prototype链就会被遍历，类似[[GET]]的操作，如果原型链上找不到foo，foo才会被直接添加到myObject上。
+		// 然而，如果foo存在于原型链的上层，也就是更里面，赋值语句myObject.foo = "bar"的行为就会有所不同。
+		// 如果属性名foo既在myObject上，也在myObjectde prototype上，那么就会发生屏蔽。myObject会屏蔽原型链上层的所有foo属性，因为myObject.foo总会选择最底层（最近）的foo属性
+	</script>
+
+	<p>关于屏蔽</p>
+	<p>原型链上层存在myObject.foo = "bar"时，有3种情况</p>
+	<ul>
+		<li>1、如果prototype链上层存在名为foo的普通数据访问属性，且writable=true，那么就会直接在myObject上添加一个名为foo的新属性，是屏蔽属性</li>
+		<li>2、如果prototype链上层存在foo，但是它被标记为writable=false，则无法修改已有属性，且不会再myObject上创建屏蔽属性。严格模式下报错，非严格下忽略。</li>
+		<li>3、如果prototype链上存在foo且是一个setter，则调用setter，foo不会被添加到myObject，也不会重新定义foo这个setter</li>
+	</ul>
+	<p>大多数开发者都会认为只要对原型链上存在的属性赋值，则一定发生屏蔽。实际上只有第一种符合。</p>
+	<p>第二，三中，如果一定需要屏蔽，则用Object.defineProperty来向myObject添加foo</p>
+	<p>其中第二点只要被设置为了writable=false，就会阻止属性的修改，屏蔽。这是为了模仿类的继承，继承父类属性，且只能是只读。</p>
+
+	<!-- 小心隐式屏蔽 -->
+	<script>
+		var anotherObject = {
+			a: 2
+		};
+
+		var myObject = Object.create(anotherObject);
+		anotherObject.a // 2
+		myObject.a // 2
+
+		// 判断对象是否直接拥有属性
+		anotherObject.hasOwnProperty("a"); // true
+		myObject.hasOwnProperty("a"); // flase
+
+		// 隐式屏蔽
+		myObject.a++; // 因为等于写了myObject.a = myObject.a + 1;  先在myObject上找a，找到后，右边=3，左边就直接在myObject上复制到了3。
+		// 这里实际上如果是想anotherObject.a的值增加，就直接anotherObejct.a++
+
+		anotherObject.a; // 2
+		myObject.a; // 3
+	</script>
+</body>
+</html>

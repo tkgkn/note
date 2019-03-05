@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <script src="http://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+</head>
+
+<body>
+	<script>
+		var LoginController = {
+			errors: [],
+			getUser: function(){
+				return document.getElementById("login_username").value;
+			},
+			getPassword: function(){
+				return document.getElementById("login_password").value;
+			},
+			validateEntry: function(user,pw){
+				user = user || this.getUser();
+				pw = pw || this.getPassword();
+
+				if (!(user && pw)) {
+					return this.failure("Please enter a username & password!")
+				}else if(pw.length < 5){
+					return this.failure("Password must be 5+ charaters!")
+				}
+
+				return true;
+			},
+			showDialog: function(title,msg){
+				// 给用户显示标题和消息
+			},
+			failure: function(err){
+				this.errors.push(err);
+				this.showDialog("Error", "Login invalid: " + err);
+			}
+		}
+
+		// 让AuthController 委托 LoginController  这里只有2个对象，没有类，更没有类模式下的1个父类和2个子类。
+		var AuthController = Object.create(LoginController);
+
+		AuthController.errors = [];
+		AuthController.checkAuth = function(){
+			var user = this.getUser();
+			var pw = this.getPassword();
+
+			if (this.validateEntry(user,pw)) {
+				this.server("/check-auth",{
+					user: user,
+					pw: pw
+				})
+				.then(this.accepted.bind(this))
+				.fail(this.rejected.bind(this))
+			}
+		};
+
+		AuthController.server = function(url,data){
+			return $.ajax({
+				url: url,
+				data: data
+			})
+		};
+
+		AuthController.accepted = function(){
+			this.showDialog("Success", "Authenticated!");
+		}
+
+		AuthController.rejected = function(){
+			this.showDialog("Auth Failed: " + err);
+		}
+
+		// 由于AuthController是一个对象，不需要实例化，可以直接调用函数
+		AuthController.checkAuth();
+
+		// 所以借助对象关联，可以简单的向委托链上添加一个或多个对象
+		var controller1 = Object.create(AuthController);
+		var controller2 = Object.create(AuthController);
+	</script>
+</body>
+
+</html>

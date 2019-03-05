@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		function Foo(name){
+			this.name = name;
+		}
+
+		Foo.prototype.myName = function(){
+			return this.name;
+		}
+
+		function Bar(name,label){
+			Foo.call(this,name);
+			this.label = label;
+		}
+
+		// 创建一个新的Bar.prototype对象并关联到Foo.prototype
+		Bar.prototype = Object.create(Foo.prototype);
+
+		// 注意，现在没有Bar.prototype.constructor了;  猜测，指向了Foo
+		// 如果需要的话，需要手动修复
+
+		Bar.prototype.myLabel = function(){
+			return this.label;
+		}
+
+		var a = new Bar("a","obj a");
+		console.log(a.constructor); // Foo 果不其然~
+		// 修复指向
+		Object.defineProperty(Bar.prototype,"constructor",{
+			enumerable: false,
+			writable: true,
+			configurable: true,
+			value: Bar
+		})
+		console.log(a.constructor); // 再看，就是Bar
+		a.myName(); // a
+		a.myLabel(); // obj a
+	</script>
+	<p>这段代码的核心就是Bar.prototype = Object.create(Foo.protoype)</p>
+	<p>Object.create()会创建一个“新”对象，并把新对象内部的[[prototype]]关联到指定的对象create(这里)</p>
+	<p>换句话说，这句话的意思是创建一个新对象Bar.prototype并关联到Foo.prototype</p>
+
+	<p>正常情况下，我们声明function Bar()时，和其他函数一样，Bar会有一个.prototype关联到默认的对象，但是这个对象是Bar.prototype指向的对象，肯定不是我们这里需要继承的Foo.prototype。因此我摩恩创建了一个新对象并把它关联到我么希望的对象上。直接抛弃原始的关联对象。</p>
+	<p>也许你会想这么干</p>
+	<script>
+		Bar.prototype = Foo.prototype;
+		// 看起来不错，但是不是我们需要的结果，这根本不是关联，而是让Bar.prototype直接饮用Foo.prototype对象了，因此当我们执行Bar.prototype.myLabel = ...的赋值语句时，会直接修改Foo.prototype对象本身。这不是我们需要的，我们不要修改Foo.prototype，如果要修改的话，直接在Foo.protoype上修改就好了，何必多此一举
+	</script>
+	<script>
+		Bar.prototype = new Foo();
+		// 这个的确会创建一个关联到Bar.prototype的新对象，因为new操作第二步，就是关联prototype。但是这是使用了Foo()的构造函数调用，如果Foo函数有一些副作用，比如写日志，修改状态，注册到其他对象，给this添加属性，这就影响到了Bar()的后代。
+	</script>
+
+	<p>因此创建一个合适的关联对象，必须使用Object.create()，而不是使用具有副作用的Foo()。这样唯一做的缺点就是抛弃了原有的对象，创建一个新对象（即constructor需要手动指向原本的函数），而不是直接在原对象上修改</p>
+
+	<p>要是能有一个可靠的方法修改对象的[[prototype]]关联就好了。ES6之前，只能通过设置.__proto__属性来实现，但是这个方法不是所有浏览器都支持的。ES6中添加了辅助函数Object.setPrototypeOf()，可以用标准并且可靠的方法来修改关联。</p>
+
+	<script>
+		// ES6之前 需要抛弃默认的Bar.prototype
+		Bar.prototype = Object.create(Foo.prototype);
+
+		// ES6开始，可以直接是修改现有的Bar.prototype
+		Object.setPrototypeOf(Bar.prototype, Foo.prototype);
+	</script>
+	<p>忽略掉Object.create()轻微的性能损失（抛弃源对象，进行垃圾回收），看起来是比ES6的方法更短且可读性更高。</p>
+</body>
+</html>

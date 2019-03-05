@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+    for (var i = 1; i <= 5; i++) {
+        setTimeout(function timer() {
+            console.log(i);
+        }, i * 1000);
+    }
+    // 打印出来5个6
+    // 用闭包的概念里的相关内容来解释：
+    // 首先，timer函数作为参数传入了setTimeout定时器里面，timer函数因此成为了闭包（非严格意义上的，因为并不是在其作用域外之外被调用，而是全部在全局作用域中）
+    // 其次，for循环不具备块作用域，i是全局上的变量，所有的timer函数访问的都是同一个i。
+    // for循环结束后，i的值是6。5次timer打印的都是同一个i，因此5个6。
+    // for循环执行5次是轻而易举的，而定时器是1秒后，那肯定是for先执行完，所以等到timer函数1秒后运转，i已经是6了。
+    </script>
+    <p>上面这个代码的缺陷就是需要更多的闭包作用于，循环的过程中每个迭代都需要一个闭包作用于</p>
+    <script>
+    // 那这样到底行不行？
+    for (var i = 0; i < 5; i++) {
+        (function() {
+            setTimeout(function timer() { // 这个timer函数被封闭在自己单独的作用域里面的，不会跟其他的timer冲突互相覆盖。
+                console.log(i);
+            }, i * 1000)
+        })
+    }
+    // 但是这样依旧的不到我们想要的答案
+    // 因为在每个闭包作用域里面的，并没有i，要想访问i，还是只能访问全局的i，i在循环后，还是6。
+    </script>
+    <p>因此上面的代码段，缺陷是，闭包作用域是空的，并没有被利用好</p>
+    <script>
+    // 这样更改，给闭包传参，闭包也是函数，函数的参数是按照值传递的，而不是引用传递，因此每个闭包接收的i，仅仅是当时i的值。
+    for (var i = 0; i < 5; i++) {
+        (function(i) {
+            setTimeout(function timer() {
+                console.log(i);
+            }, i * 1000)
+        })(i);
+    }
+    //现在可以得到想要的值
+    </script>
+</body>
+
+</html>

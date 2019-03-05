@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>隐式混入和之前提到的显示伪多态很像。因此具备同样的问题</p>
+	<script>
+		var Something = {
+			cool: function(){
+				this.greeting = "Hello World";
+				this.count = this.count ? this.count + 1 : 1;
+			}
+		}
+		Something.cool();
+		console.log(Something.greeting); // "Hello World"
+		console.log(Something.count); // 1
+
+		var Another = {
+			cool: function(){
+				// 隐式把Something 混入 Another
+				Something.cool.call(this); // 借用Somehing.cool的行为，显示指定this，最终结果都会在Another对象上。
+			}
+		}
+		Another.cool();
+		console.log(Another.greeting); // Hello World
+		console.log(Another.count); // 1 不会共享。
+	</script>
+	<p>因此，成功的把Something的行为混入到了Another中。虽然利用了this重新绑定功能，但是Something.cool.call(this)仍然无法变成相对引用。因此使用时千万小心，尽量避免使用这样的结构，保证代码的症结和可维护。</p>
+</body>
+</html>

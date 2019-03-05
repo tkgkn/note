@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>const也会形成作用域</title>
+</head>
+<body>
+	<script>
+		var foo = true;
+		if (foo) {
+			var a = 2;
+			const b = 3; // 包含在if的块作用域中
+			a = 3; 
+			b = 4; // 报错
+		}
+
+		console.log(a); //3
+		console.log(b); //ReferenceError
+	</script>
+</body>
+</html>

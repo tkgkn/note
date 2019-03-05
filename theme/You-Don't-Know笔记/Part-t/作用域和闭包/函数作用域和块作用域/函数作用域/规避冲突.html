@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>规避冲突</title>
+</head>
+<body>
+	<ul>
+		<li>命名空间方式</li>
+		<li>模块管理，依赖管理器的机制将库的标识符显式导入到特定的作用域=</li>
+	</ul>
+	<script>
+		function foo(){
+			function bar(a){
+				i = 3; // 会修改for循环作用域中的i。
+				console.log(a + i);
+			}
+
+			for (var i = 0; i < 10; i++) {
+				bar(i * 2); // bar在调用时，传入i * a，i被改为3，永远都是bar(3 * 2)，无限循环了。
+			}
+		}
+	</script>
+</body>
+</html>

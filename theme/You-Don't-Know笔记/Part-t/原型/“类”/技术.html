@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>Js开发者较劲脑汁想要模仿类的行为</p>
+	<script>
+		function Foo(name){
+			this.name = name;
+		}
+
+		Foo.prototype.myName = function(){
+			return this.name;
+		}
+
+		var a = new Foo("a");
+		var b = new Foo("b");
+
+		a.myName(); // "a"
+		b.myName(); // "b"
+	</script>
+	<p>这段代码展示了2种面向类的技巧：</p>
+	<ul>	
+		<li>this.name=name给每个对象都添加了.name属性。有点像类实例封装的数据值。new的时候，创建新对象赋值给a和b，同时，执行this.name = name，因为new绑定this到了新对象，即a和b上，所以a.name=name 和 b.name=name</li>
+		<li>Foo.prototype.myName会给Foo.prototype对象添加一个属性（函数即方法），然后a.myName()就可以正常使用了，看起来以为创建a和b时会把Foo.prototype对象复制到这2个对象中，然而并不是这样。在new Foo()的时候，就把a,b内部的[[prototype]]链接到了Foo.prototype上，a，b中无法找到myName，但是会通过原型链继续找。在讲解new绑定this那节，说过new一个函数会执行哪些操作。</li>
+	</ul>
+</body>
+</html>

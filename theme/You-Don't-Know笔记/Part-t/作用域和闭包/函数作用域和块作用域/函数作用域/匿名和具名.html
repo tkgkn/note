@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		// 匿名函数表达式，最常见的就是setTimeout
+		setTimeout(function(){
+			console.log("test");
+		},1000);
+	</script>
+	<ul>
+		<li>匿名函数缺点</li>
+		<li>1、没有一个有意义的名字，代码可读性，可理解性降低</li>
+		<li>2、调用自身只能用过期的arguments.callee，比如递归函数，事件触发后解绑自身</li>
+	</ul>
+	<script>
+		setTimeout(function timeoutName(){  // 这样就有名字了
+			console.log("I waited 1 second");
+		},1000)
+	</script>
+</body>
+</html>

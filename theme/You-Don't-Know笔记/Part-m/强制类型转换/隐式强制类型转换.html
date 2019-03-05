@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+
+<body>
+  <div class="eg">
+    <p>字符串和数字之间的隐式强制类型转换</p>
+    <script>
+      var a = '42';
+      var b = '0';
+      var c = 42;
+      var d = 0;
+      console.log(a + b); // '420'
+      console.log(c + d); // 42
+
+      // 数字和空字符串''相加转换为字符串
+      var a = 42;
+      var b = a + '';
+      console.log(b); // '42'
+
+      // 字符串转换为数字
+      // 执行+-操作，都需要转换为数字
+      var a = '42';
+      console.log(+a); // 42
+    </script>
+  </div>
+  <div class="eg">
+    <p>布尔值到数字的隐式强制类型转换</p>
+    <script>
+      var a = true;
+      console.log(Number(a)); // 1
+    </script>
+  </div>
+  <div class="eg">
+    <p>隐式强制转换为布尔值，常用在</p>
+    <ul>
+      <li class="indent">if()</li>
+      <li class="indent">for(..,..,..)，条件判断表达式</li>
+      <li class="indent">while()和do while()</li>
+      <li class="indent">? : 三元操作符</li>
+      <li class="indent">逻辑运算符||，&&，左边的操作符</li>
+    </ul>
+    <script>
+      var a = 42;
+      var b = "abc";
+      var c = undefined;
+      var d = null;
+      if (a) {
+        console.log("yep"); // yep
+      }
+      while (c) {
+        console.log("nope, never runs");
+      }
+      c = d ? a : b;
+      c; // "abc"
+      if ((a && d) || c) {
+        console.log("yep"); // yep
+      }
+    </script>
+  </div>
+  <div class="eg">
+    <p>|| 和 &&，<span class="red">具有返回值</span></p>
+    <script>
+      // 返回2个操作数中的一个。
+      // ||和&&先对第一个操作数进行判断，如果不是布尔值，就进行toBoolean强制类型转换，然后在判断条件。
+      // 对||来说，第一个为true，返回第一个，若为false返回第二个操作数的值
+      // 对&&来说，第一个为true，返回第二个，若为false返回第一个操作数的值
+      var a = 42;
+      var b = 'abc';
+      var c = null;
+      var d = undefined;
+      console.log(a || b) // 42
+      console.log(a && b) // 'abc'
+
+      console.log(c || b) // 'abc'
+      console.log(c && b) // null
+
+      console.log(c || d) // undefined
+      console.log(c && d) // null
+    </script>
+  </div>
+  <div class="eg">
+    <p><span class="bold">Symbol</span>不支持隐式强制转换</p>
+    <script>
+      var s1 = Symbol('cool');
+      console.log(String(s1)); //Symbol(cool)
+
+      var s2 = Symbol('not cool');
+      try{
+        console.log(s2 + '');
+      }catch(error) {
+        console.log(error)
+      }
+    </script>
+  </div>
+</body>
+
+</html>

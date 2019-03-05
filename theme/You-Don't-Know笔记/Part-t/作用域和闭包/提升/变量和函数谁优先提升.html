@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+<!-- 	<p>多个重复声明的时候，有同样的函数名和变量名，谁会优先提升</p>
+	<script>
+		foo();
+		var foo;
+		function foo(){
+			console.log(1); // 输出这个
+		}
+		foo = function(){
+			console.log(2);
+		}
+	</script>
+	<script>
+		// 上面代码会被引擎理解为
+		function foo(){
+			console.log(1);
+		}
+		foo();
+		foo = function(){
+			console.log(2);
+		}
+	</script>
+	<p>也许你会理解为var foo 被 function foo 给覆盖了，毕竟function foo在后面，但即便在前面，也一样</p>
+	<script>
+		foo();
+		function foo(){
+			console.log(1); // 输出这个
+		}
+		var foo = function(){
+			console.log(2);
+		}
+	</script>
+	<script>
+		foo();
+		function foo(){
+			console.log(1); 
+		}
+		var foo = function(){
+			console.log(2);
+		}
+
+		// 但如果后面还是有函数声明，则可以覆盖之前的函数声明
+		function foo(){
+			console.log(3); // 输出这个
+		}
+	</script> -->
+	
+	<p>普通块中（非块作用域）函数声明通常会被提升到所在作用域的顶端</p>
+	<script>
+		foo();
+		var a = true;
+		// 这个判断并没有什么用处，If不会有块作用域，内部函数声明直接提升。相当于foo函数被声明了2次，后面的覆盖前面的，ES5环境下打印b。（注意把前面的代码先注释掉，因为多个script写在同一个页面，在同一个全局中）
+		if (a) {
+			function foo(){
+				console.log("a");
+			}
+		}else{
+			function foo(){
+				console.log("b");
+			}
+		}
+	</script>
+</body>
+</html>

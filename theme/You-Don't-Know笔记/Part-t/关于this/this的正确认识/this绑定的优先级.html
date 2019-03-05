@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<!-- 绑定的优先级 -->
+	<p>默认绑定的优先级最低</p>
+	<p>隐式和显示哪个高？</p>
+	<script>
+		function foo(){
+			console.log(this.a);
+		}
+		var obj1 = {
+			a: 2,
+			foo: foo
+		};
+
+		var obj2 = {
+			a: 3,
+			foo: foo
+		};
+		obj1.foo(); //2  隐式
+		obj2.foo(); //3  隐式
+
+		obj1.foo.apply(obj2); // 3  显示
+		obj2.foo.apply(obj1); // 2  显示
+		// 结论是显示优先级更高
+	</script>
+	<p>new绑定和隐式绑定的优先级哪个更高？</p>
+	<script>
+		function foo(something){
+			this.a = something;
+		}
+
+		var obj1 = {
+			foo: foo
+		};
+
+		var obj2 = {};
+
+		// obj1.foo(2);
+		// console.log(obj1.a); // 2
+
+		// obj1.foo.call(obj2,3);
+		// console.log(obj1.a); // 3
+
+		var bar = new obj1.foo(4);   // 按道理来说obj1.foo(4)调用后，obj1.a应该是4。再注释了前面4行代码后，下面打印后确实undefined，因为这里有new的关系，导致，this并不是绑定在了obj1上，而是绑定到了新创建的bar上，然后访问bar.a就打印出了4。这就说明new绑定高于隐式绑定，隐式绑定在和new同时存在的时候，直接被new干掉了。
+		console.log(obj1.a); // 2; 没有前面的obj1.foo(2)调用的话应该是undefined
+		console.log(bar.a); // 4
+	</script>
+	<p>call和apply跟new无法一起使用，无法通过new foo.apply(obj1)来直接测试显示绑定和new绑定谁优先级更高，但是可以考虑了用硬绑定来测试。</p>
+	<p>回忆一下硬绑定的工作流程，利用Function.prototype.bind()会创建一个新的包装函数，这个函数忽略当前的this绑定（无论绑定的对象是什么），并将我们提供给它的对象绑定到this上去。这样看起来，硬绑定（即显示绑定应该比new优先级更高）</p>
+	<script>
+		function foo(something){
+			this.a = something
+		}
+
+		var obj1 = {};
+		var bar = foo.bind(obj1); // bind返回一个新的包装函数，是硬编码的
+		// bar(2);
+		// console.log(obj1.a); // 2
+
+		var baz = new bar(3);  
+		console.log(obj1.a); // 注释掉上面的bar(2)调用  结果是undefined。
+		console.log(baz.a); // 3
+		// 说明new关键字导致了this绑定到了new出来的新对象上，而改变了bind()所绑定的this对象。
+		// 说明new绑定优先级高于显示绑定。
+	</script>
+	<p>为什么在new中使用硬绑定，普通的函数不是更简单么？</p>
+	<p>new中使用硬绑定，主要目的是为了预先设置函数的一些参数。这样使用new的进行初始化时只需要传入其他参数，bind的功能之一就是除了第一个参数this之外的其他参数都传给下层函数。</p>
+	<script>
+		function foo(p1,p2){
+			this.val = p1 + p2;
+		}
+		// 
+		var bar = foo.bind(null,"p1");  //第一个参数位本是this的，但是这里写null，因为我们是要new创建新对象的，反正最后this绑定在新对象身上，这里是谁无所谓。至于p1这个值，就是之前所说，预先设置函数的一些参数，这样在后面调用的时候，只需要传入b2就可以了。
+		var baz = new bar("p2");
+		console.log(baz.val); // p1p2
+	</script>
+	<!-- 总结：this绑定规则的顺序 -->
+	<ul>
+		<li>函数是否在new中调用？是的话，this绑定的是new出来的新对象。var bar = new foo() this绑定至bar</li>
+		<li>函数是否通过call,apply（显示绑定）或者硬绑定（bind）调用？是的话，this绑定的是指定对象。var bar = foo.call(obj2) this绑定至obj2</li>
+		<li>函数是否在某个上下文中调用（隐式绑定）？如果是的话，this绑定的是那个上下文。var bar = obj1.foo() this绑定至obj1</li>
+		<li>如果以上都没有，使用默认绑定，严格模式下绑定到undefined，非严格绑定到全局对象window。var bar = foo(); this绑定至全局中</li>
+	</ul>
+</body>
+</html>

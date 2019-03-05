@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+
+<body>
+  <div class="eg">
+    <p>ToString</p>
+    <script>
+      var a = 1.07 * 1000;
+      console.log(a.toString());
+
+      var b = [1, 2, 3];
+      console.log(b.toString());
+    </script>
+  </div>
+  <div class="eg">
+    <p>ToNumber</p>
+    <script>
+      console.log(Number(true)) // 1
+      console.log(Number(false)) // 0
+      console.log(Number(undefined)) // NaN
+      console.log(Number(null)) // 0
+
+      console.log(Number('')); // 0
+      console.log(Number([])); // 0
+      console.log(Number(['abc'])); // NaN
+    </script>
+  </div>
+  <div class="eg">
+    <p>ToBoolean</p>
+    <script>
+      // 假值的布尔强制类型转为false
+      console.log(Boolean(undefined)); // false
+      console.log(Boolean(null)); // false
+      console.log(Boolean(0)); // false;
+      console.log(Boolean(NaN)); // false;
+      console.log(Boolean("")); // false;
+
+      // 封装了假值的对象。都是真
+      var a = new Boolean(false);
+      var b = new Number(0);
+      var c = new String('');
+      console.log(Boolean(a), Boolean(b), Boolean(c)); // true true true
+
+      // 真值
+      console.log(Boolean([])); // true
+      console.log(Boolean({})); // true
+      console.log(Boolean(function(){})); // true
+    </script>
+  </div>
+</body>
+
+</html>

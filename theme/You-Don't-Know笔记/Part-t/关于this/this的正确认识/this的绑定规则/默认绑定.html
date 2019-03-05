@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>第一条this的绑定规则，我们用函数最常用的调用方式：独立函数调用来演示。这条规则是在没有其他规则适用时的默认规则。</p>
+	<script>
+		function foo(){
+			console.log(this.a);
+		}
+		var a = 2;
+		foo(); // 2
+	</script>
+	<p>这里首先要说明的是，在全局声明的变量，其实就是全局对象的同名属性，是一个东西，而非2个东西！就像一枚硬币的2面，虽然是2面，但是是1个东西。</p>
+	<p>foo()被调用时，this.a被解析为了全局的a，因为在这个代码段中，对foo()调用的this实施了默认绑定，this指向了global object即window</p>
+	<p>为什么这里适用于用默认绑定，看下这个函数被调用的情况，毫无任何修饰，简简单单的函数调用，其他规则都不会在这里被应用。</p>
+
+	<p>但是如果JS代码用了严格模式'use strict'，this将会被设置为undefined，this不能指向全局对象</p>
+
+	<p>一个微妙的细节</p>
+	<p>所有的绑定规则都是基于call-site的，如果不是在严格模式下，对于默认绑定来说，this指向全局对象是唯一合法的。</p>
+
+	<p>这点比较难理解：foo函数的调用点的严格模式与此无关</p>
+	<script>
+		// 举例
+		function foo(){
+			console.log(this.a);
+		}
+		var a = 2;
+		(function(){
+			"use strict";
+			foo(); //2  call-site for foo ，当前调用点位置是严格模式，但是这个严格模式并不妨碍foo找到this.a也就是全局对象的a
+		})();
+		// 不要混合严格模式和非严格模式，只选一种模式，在你设计代码的时候。
+		// 但有时候引入其他第三方库时，有可能代码模式跟你不一样，所以需要对这些细节有所了解。
+	</script>
+</body>
+</html>

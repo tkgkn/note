@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+  <div class="eg">
+    <p>拆封，得到封装对象中的基本类型值<span class="red">valueOf()</span></p>
+    <script>
+      var a = new String('abc');
+      var b = new Number(42);
+      var c = new Boolean(true);
+
+      a.value(); // abc
+      b.value(); // 42
+      c.value(); // true
+
+      // 隐式拆封
+      var a = new String('abc');
+      var b = a + ''; // abc
+      console.log(typeof a, typeof b); // object string
+    </script>
+  </div>
+</body>
+</html>

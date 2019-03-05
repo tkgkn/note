@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		var myObject = {
+			a:2
+		};
+		myObject.a; // 2
+	</script>
+	<p>看起来是一个属性访问，但不仅仅是在访问myObject</p>
+	<p>语言规范中，myObject实际上是实现了[[Get]]操作，有点像函数调用[[Get]]()，对象默认的内置[[Get]]操作首先在对象中查找是否有名称相同的属性，如果找到就返回这个，如果没有找到，会遍历可能存在的原型链[[Prototype]]，如果无论如何都没有，返回undefined</p>
+	<p>跟访问变量不同，如果引用或查找一个当前词法作用域不存在的变量，并不会像对象属性一样返回undefined，而是抛出ReferenceError异常</p>
+	<p>但如何区分下面这种情况，到底是真的没找到，还是值就是undefined</p>
+	<script>
+		var myObject = {
+			a: undefined
+		};
+		myObject.a; // undefined
+		myObject.b; // undefined
+		// 后面的文章做解释。其实就是hasOwnProperty
+	</script>
+</body>
+</html>

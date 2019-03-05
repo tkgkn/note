@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+
+<body>
+  <div class="eg">
+    <p>常见解释： <span class="red">==</span>判断值是否相等，<span class="red">===</span>判断值和类型是否相等</p>
+    <p>正确解释：<span class="red">==</span>允许在相等比较中进行强制类型转换，<span class="red">===</span>不允许</p>
+  </div>
+  <div class="eg">
+    <p>抽象相等</p>
+    <p>比较对象时，==和===的工作原理一样，<span class="red">对象指向同一个值即视为相等</span></p>
+    <script>
+      var a = {
+        one: 1
+      }
+      var b = {
+        one: 1
+      }
+      console.log(a == b); // false
+
+      var c = a;
+      console.log(a == c, a === c); // true true
+    </script>
+  </div>
+  <div class="eg">
+    <p>字符串和数字之间的相等比较</p>
+    <script>
+    var a = 42;
+    var b = '42';
+    console.log(a === b); // false
+    console.log(a == b); // true
+    // 究竟强制转换了哪个
+    // type(x)是数字，type(y)是字符串，则比较x == toNumber(y)
+    // type(x)是字符串，type(y)是数字，则比较toNumber(x) == y
+    </script>
+    <p>其他类型和布尔类型之间的相等比较，尽量不要使用<span class="red"> == true</span>或者<span class="red"> == false</span></p>
+    <script>
+    var a = '42';
+    var b = true;
+    console.log(a == b); // false  '42' == 1  
+    // 转换规则
+    // type(x)是布尔值，则返回toNumber(x) == y
+    // type(y)是布尔值，则返回x == toNumber(y)
+    </script>
+  </div>
+  <div class="eg">
+    <p><span class="red">null</span>和<span class="red">undefined</span>的比较</p>
+    <script>
+    var a = null;
+    var bb;
+    console.log(a == bb); // true
+    console.log(a == null); // true
+    console.log(bb == null); // true
+    console.log(bb == undefined); // true
+
+    a == false; // false
+    b == false; // false
+    a == ""; // false
+    b == ""; // false
+    a == 0; // false
+    b == 0; // false
+
+    // 转换规则
+    // x和y 一个为null，一个为undefined，则为true
+    </script>
+  </div>
+  <div class="eg">
+    <p>对象和非对象之间的相等比较</p>
+    <script>
+      // 转换规则（toPrimitive转换为简单类型的值）
+      // type(x)是字符串或数字，type(y)是对象，返回 x == toPrimitive(y)
+      // type(y)是字符串或数字，type(x)是对象，返回 toPrimitive(x) == y
+      var a = 42;
+      var b = [42];
+      console.log(a == b); // true  [42]调用toPromitive抽象操作，返回'42'，然后'42'转42
+
+      var a = 'abc';
+      var b = Object(a); // 拆封成'abc'，相当于new String('abc')
+      console.log(a === b); //false
+      console.log(a == b); //true
+
+      // 注意，拆封前提是有封装函数
+      var a = null;
+      var b = Object(a); // null无对应的封装，和Object()一样。
+      console.log(a == b); // false;
+
+      var c = undefined;
+      var d = Object(c); // 同上
+      console.log(c == d); // false
+
+      var e = NaN;
+      var f = Object(NaN); // 有对应封装，new Number(NaN);
+      console.log(e == f); // false NaN == NaN
+    </script>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>ES6语法中有可计算属性名</p>
+    <script>
+    var prefix = "foo";
+    var myObject = {
+        [prefix + "bar"]: "hello",
+        [prefix + "baz"]: "world"
+    };
+    console.log(myObject["foobar"]);
+    console.log(myObject["foobaz"]);
+    </script>
+    <p>关于属性和方法的描述</p>
+    <p>其他语言中，属于对象的函数通常称为方法，所以属性访问说成是方法访问也不奇怪。</p>
+    <p>从技术上来说讲，JS中函数永远不会“属于”一个对象，所以把对象内部引用的函数称为方法似乎有点不太妥当。</p>
+    <script>
+    // 每次访问对象的属性就是属性访问，如果属性返回的是一个函数，那它也不是一个“方法”，属性访问返回的函数和其他函数没有任何区别。
+    // 除了可能发生的隐式绑定this，但本质上并没有把一个函数变成一个方法。
+    function foo() {
+        cosnole.log("foo");
+    }
+    var someFoo = foo; // 对foo的变量引用
+    var myObject = {
+        someFoo: foo
+    };
+
+    foo; // function foo(){}
+    someFoo; // function foo(){}
+    myObject.someFoo; // function foo(){}
+    // 都是对于同一个函数的不同引用，并不能说明这个函数是特别的或者属于某个对象。
+    </script>
+    <p>如果在对象字面表达式中声明一个属性，属性值就是一个函数呢？</p>
+    <script>
+    var myObject = {
+        foo: function() {
+            console.log("foo");
+        }
+    };
+
+    var someFoo = myObject.foo;
+    console.log(someFoo); // function(){console.log("foo")}
+    console.log(myObject.foo); // function(){console.log("foo")}
+    // 这个函数依旧不会“属于”这个对象，仅仅是对于相同函数对象的多个引用而已。
+    </script>
+</body>
+
+</html>
