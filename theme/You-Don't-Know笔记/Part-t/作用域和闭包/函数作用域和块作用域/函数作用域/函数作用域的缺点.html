@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		var a = 2;
+		function foo(){
+			var a = 3;
+			console.log(a);
+		}
+		foo()
+		console.log(a);
+		// 通过foo这个函数名，将内部a隐藏起来，外部访问不到内部的a变量。
+	</script>
+	<ul>
+		<li>在代码外部包装函数可以隐藏内部的变量和函数，但是首先要声明一个具名函数，具名函数本身就污染了所在作用域</li>
+		<li>需要显式的通过函数名来调用，才能运行其中的代码</li>
+	</ul>
+	<script>
+		// javascript本身也提供了可以同时解决两个问题的方案
+
+		// 这里被当成了函数表达式，然后自执行。只能在函数表达式自身的函数中被调用，外部却不能调用。这样就少污染了一个全局变量
+		(function foo(){
+			var a = 3;
+			console.log(a); //3
+		})();
+
+		console.log(a);
+	</script>
+</body>
+</html>

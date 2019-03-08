@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+	<script>
+		function something(){
+
+		}
+	</script>
+    <p>let限定了块作用域</p>
+    <script>
+    var foo = true;
+    if (foo) {
+        let bar = foo * 2;
+        bar = something(bar);
+        console.log(bar);
+    }
+    console.log(bar); //ReferenceError  引用错误
+    </script>
+    <p>但上面的这个片段是let隐式截止了所在块作用域，因为是隐式，如果不密切关注，就会变得混乱。</p>
+    <script>
+    // 显示的去创建块作用域，可以让代码更清晰
+    var foo = true;
+    if (foo) {
+        {  //这里就为let创建了一个用于绑定的显示块作用域，好处在于，可以随意移动或重构，因为在{}里面，不影响外部
+            let bar = foo * 2;
+            bar = something(bar);
+            console.log(bar);
+        }
+    }
+    console.log(bar); //ReferenceError  引用错误
+    </script>
+    <p>变量提升：这个很常见，无论var在何地，都可以引用到。但是在let下。</p>
+    <script>
+    	{
+    		console.log(a); //undefined 这里还是有变量提升的 
+    		var a = 3; 
+    	}
+    	{
+    		console.log(a);
+    		let a = 2;
+    	}
+    </script>
+</body>
+
+</html>

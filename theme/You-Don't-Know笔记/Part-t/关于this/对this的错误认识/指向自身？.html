@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>拘泥于this的字面意思就会产生一些误解。</p>
+    <p>常见的对于this的解释，但都是错误的，第一个指向自身</p>
+    <p>从英语角度的语法角度来说是OK的，指向函数自身。但！</p>
+    <p>为什么要从函数内部引用函数自身呢？常见的情况是递归，或者是写一个在第一次调被调用后自己解除绑定的事件处理器，比如一个按钮点击后，就解绑它的点击事件。</p>
+    <script>
+    // 新手开发者通常会认为，JS中任何都是对象，那函数，在调用的时候，就可以存储状态（属性值），可行，有时候很有用，但是除了函数外，还有很多更适合存储状态的地方。
+    function foo(num) {
+        console.log("foo: " + num);
+        // 记录foo被调用的次数
+        this.count++;
+        this.name = "hh"
+    }
+
+    foo.count = 0;
+
+    for (var i = 0; i < 10; i++) {
+        if (i > 5) {
+            foo(i);
+        }
+    }
+    // foo: 6;
+    // foo: 7;
+    // foo: 8;
+    // foo: 9;
+
+
+    // 猜猜foo被调用了多少次？ 应该是4次吧
+    // NO
+    console.log(foo.count); // 0   ...简直懵逼    原因是count++的count和foo.count并不是同一个count
+
+    // 这是对于this的理解错误导致的。
+    </script>
+    <p>按对this的理解，指向自身。打印了4次，也就是说foo()函数确实被调用了4次。</p>
+    <p>然后关于this，记得前面关于作用域和词法作用域这章的附录，关于this的词法，谁调用了，this就指向谁。而这里foo()被调用是在for中的if里面，for和if是没有块作用域的，相当于foo()是在全局中被调用了，那foo里面的this就是指向了window，然后在this.count++这句话中，实际上就是window.count++，无意间创建了全局属性count，然后对count进行了++，也就是undefined进行了++，结果当然是NaN</p>
+    <p>遇到这类问题，通常都不愿意深入和解决，大部分开发者都会选择用更熟悉的方式去解决问题，比如上面的这个代码，就创建另一个对象来绑定住count属性</p>
+    <script>
+    function foo(num) {
+        console.log("foo: " + num);
+        data.count++;
+    }
+
+    var data = {
+        count: 0
+    };
+
+    var i;
+    for (i = 0; i < 10; i++) {
+        if (i > 5) {
+            foo(i);
+        }
+    }
+
+    console.log(data.count); // 4
+    </script>
+    <p>看起来上面这段代码解决之前第一段代码的问题，为什么count是NaN。但不幸的是这只是让你忽略了问题的真正所在，对this含义理解和工作机制认识的不足。转而用了更熟悉，让我们使用起来更舒适的方式，词法作用域！</p>
+    <p>全局中创建一个对象data，含有属性count，然后利用词法作用域的规则，函数foo可以访问到外部的作用于，因此可以操纵data.count</p>
+    <!-- _________________________________________ -->
+    <p>对于引用函数对象自身，this可能不能够胜任，此时更需要用一个词法标识符去指向函数对象本身</p>
+    <script>
+    function foo() {
+        foo.count = 4; // foo refers to itself 即具名函数，可以指向自身。foo是一个可以从内部指向自己函数的引用。
+    }
+
+    setTimeout(function() {
+        // 匿名函数，不能指向自身。定时器里面的回调函数是匿名的，所以没有适当的方式去指向函数对象自身。
+        // 老旧的方式是使用arguments.callee在一个函数内部去指向当前正在执行的函数对象，这种方式已经不赞成再继续使用。但是这是唯一的方式，在匿名函数内部，去指向这个函数对象本身。最好的方式，然而却是避免使用匿名函数，至少对于这些函数，包含一个自身引用，比如用具名函数。重申一下，arguments.callee不应该再被使用。
+    })
+    </script>
+    <p>所以对于我们刚开始的关于count是几的函数，还有一个解决办法就是使用foo这个标识符在函数对象的任何地方，而完全不适用this.</p>
+    <script>
+    function foo(num) {
+        console.log("foo: " + num);
+
+        foo.count++;
+    }
+    foo.count = 0;
+    var i;
+    for (i = 0; i < 10; i++) {
+        if (i > 5) {
+            foo(i);
+        }
+    }
+    console.log(foo.count); // 4
+    // 然而这个方式，也是避免使用了this，而是完全依赖于词法变量foo
+    </script>
+    <p>然后，另一种去接近于问题本身（即this指向）的方式，就是强制this绑定在foo函数对象上</p>
+    <script>
+    function foo(num) {
+        console.log("foo: " + num);
+        this.count++;
+    }
+
+    foo.count = 0;
+    var i;
+    for (i = 0; i < 10; i++) {
+        if (i > 5) {
+            foo.call(foo, i);
+        }
+    }
+
+    console.log(foo.count);
+    </script>
+    <p>不要去逃避使用this，而是拥抱它。</p>
+</body>
+
+</html>

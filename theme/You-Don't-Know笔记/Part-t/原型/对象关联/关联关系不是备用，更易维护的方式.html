@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>看起来原型链这种机制，像是处理“缺失”属性或者方法时的一种备用选项，但这并不是prototype的本质</p>
+	<script>
+		var anotherObject = {
+			cool: function(){
+				console.log("cool!");
+			}
+		}
+
+		var myObject = Object.create(anotherObject);
+		myObject.cool();
+		// 代码依旧可以正常工作，如果你这么写是为了让myObject在无法处理属性和方法时可以使用备用的anohterObject，那么软件就会变得有点“神奇”，难以维护和理解
+	</script>
+	<p>既想让API设计的不那么神奇，又想同时发挥[[Prototype]]关联的威力：这么做</p>
+	<script>
+		var anotherObject = {
+			cool: function(){
+				console.log("cool!");
+			}
+		};
+
+		var myObject = Object.create(anotherObject);
+		myObject.doCool = function(){
+			this.cool(); // 内部委托
+		};
+
+		myObject.doCool(); // "cool"
+
+		//因为这里调用的doCool是实际存在于myObject中的，这可以让我们的API设计更加清晰，从内部来说，我们的实现遵循的是委托设计模式，通过[[Prototype]]委托到anotherObject.cool()。
+		//换句话说，内部委托比起直接委托可以让API接口设计更加清晰。
+	</script>
+</body>
+</html>

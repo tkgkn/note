@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>prototype其实就是对于其他对象的引用</p>
+	<p>所有对象再被创建时prototype属性都会被赋予一个非空的值，当然也能为空，少见而已</p>
+	<script>
+		var myObject = {
+			a: 2
+		}
+		myObject.a; // 2
+	</script>
+	<p>prototype引用有什么用呢？</p>
+	<p>如果a不在myObject中，就需要使用对象的prototype链了。</p>
+	<p>对于默认的[[GET]]操作来说，如果无法在对象本身找到需要的属性，就回就访问对象的prototype链。</p>
+	<script>
+		var anotherObject = {
+			a: 2
+		};
+
+		// 创建一个关联到anotherObject的对象
+		var myObject = Object.create(anotherObject);
+
+		myObject.a; // 2
+	</script>
+	<p>对象myObject上的prototype关联到了anotherObject，虽然myObject.a并不存在，但这个过程因为会持续找到匹配的属性名或者查找完整的prototype链，如果是后者，[[GET]]操作的返回值是undefined</p>
+
+	<p>使用for in遍历时原理和查找prototype类似，可以通过原型链访问到的属性（且enumerable=true）都会被枚举，使用in操作符来检查属性在对象中是否存在时，同样会查找对象的整条原型链。（无论属性是否可枚举）</p>
+	<script>
+		for(var k in myObject){
+			console.log("found: " + k);
+		}
+		console.log(("a" in myObject));
+	</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>通常认为js是由上到下的执行，但是如果是这样，下面的2段代码就无法解释</p>
+	<script>
+		a = 2;
+		var a;
+		console.log(a); // 2
+	</script>
+	<script>
+		console.log(a);
+		var a = 2; // undefined
+	</script>
+	<p>神奇的结果，这里就要请到浏览器编译器了</p>
+</body>
+</html>

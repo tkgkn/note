@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+
+<body>
+  <p>对象默认的[[Put]]和[[Get]]操作分别可以控制属性值的设置和获取。</p>
+  <p>ES5中可以使用getter和setter部分改写上面的默认操作，只能应用在单个属性上，无法应用在整个对象。</p>
+  <p>getter和setter都是隐藏函数，获取属性值和设置属性值时调用</p>
+  <script>
+  (function() {
+    var myObject = {
+      get a() { // 定义了a的getter
+        return 2;
+      }
+    };
+
+    Object.defineProperty(myObject, "b", {
+      get: function() { // 定义了b的getter
+        return this.a * 2
+      },
+      enumerable: true
+    });
+
+    console.log(myObject.a); // 2
+    console.log(myObject.b); // 4
+    // 不管是在myObject字面对象中，还是通过definedProperty中的显示定义，二者都会在对象中创建一个不包含值得属性，这个属性的访问会自动调用一个隐藏函数，它的返回值会被当做属性访问的返回值
+  })()
+  </script>
+  <p>改变默认的[[get]]操作，只设置a的getter，对属性进行设置时，set操作会忽略复制操作，不会抛出错误。即便有合法的setter，由于自定的getter只返回2，所以set操作也无意义</p>
+  <script>
+  (function() {
+    var myObject = {
+      // 给a定义一个getter
+      get a() {
+        return 2;
+      }
+    };
+    myObject.a = 3;
+    console.log(myObject.a); // 2	
+  })()
+  </script>
+  <p>通常为了让属性更合理，应当定义setter，setter会覆盖单个属性默认的[[Put]]操作，通常来说setter和getter是成对出现的，只定义一种会出现意料之外的行为</p>
+  <script>
+  (function() {
+    var myObject = {
+      // 给a定义一个getter
+      get a() {
+        return this._a_;
+      },
+
+      // 给a定义一个setter
+      set a(val) {
+        this._a_ = val * 2;
+      }
+    };
+
+    myObject.a = 2; // 先调用set设置a为2，设置了this._a_ = 4;
+    console.log(myObject.a); // 4 调用get，访问得到4
+  })()
+  </script>
+</body>
+
+</html>

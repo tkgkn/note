@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>理解this绑定的第一步，需要了解call-site，函数在何处被调用，而不是在哪里被声明</p>
+    <p>检查调用点回答this指向的是什么！</p>
+    <p>通常来说，找到调用点，只需要定位到函数在哪里被调用，但是一些编码模式会让这个寻找变得复杂，掩盖真正调用点</p>
+    <p>关于调用栈：函数栈，被唤作使我们到达当前执行的时刻！</p>
+    <p>我们关心的调用点在当前运行的函数之前</p>
+    <script>
+    // 来印证一下调用栈和调用点！
+    function baz() {
+        // call-stack is : baz
+        // call-site is : global scope
+
+        console.log("baz");
+        bar(); // <-- call-site for bar
+    }
+
+    function bar() {
+        // call-stack is : baz -> bar
+        // call-site is : baz
+        console.log("bar");
+        foo(); // <-- call-site for foo
+    }
+
+    function foo(){
+    	// call-stack is : baz->bar->foo
+    	// call-site is : bar
+    	debugger;
+    	console.log("foo");
+    }
+
+    baz(); // call-site for baz
+    </script>
+    <p>一定要小心，当你分析真实的调用点时，因为这是唯一能确定this绑定的东西。</p>
+    <p>现代浏览器的开发者工具，都有能够分析调用栈的功能。比如chrome</p>
+    <p>在需要的地方打断点，然后看下右侧的call stack是什么，这就是当前的调用栈，然后在当前调用栈的下面，紧挨着的就是call-site，即何处调用的！这样你就能区分出this的指向。不要过多的依赖工具，理解原理才是真的。</p>
+</body>
+
+</html>

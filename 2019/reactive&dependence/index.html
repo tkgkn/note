@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Document</title>
+  </head>
+  <body>
+    <script>
+      /* 响应式属性 */
+      /* 一个最简单的实现 */
+      // var a = {}
+      // var value = 0
+      // Object.defineProperty(a, 'box', {
+      //   get: function(){
+      //     return value
+      //   },
+      //   set: function(newValue){
+      //     value = newValue
+      //   }
+      // })
+    </script>
+    <script>
+      /* 封装一个将属性转换成get,set访问器属性 */
+      // function defineReactive(obj, key, val) {
+      //   Object.defineProperty(obj, key, {
+      //     get: function(){
+      //       return val
+      //     },
+      //     set: function(newVal){
+      //       val = newVal
+      //     },
+      //     enumerable: true,
+      //     configurable: true
+      //   })
+      // }
+      // /* 将对象所有属性都自动转换为get,set */
+      // function observe(obj){
+      //   var keys = Object.keys(obj)
+      //   keys.forEach(function(key) {
+      //     defineReactive(obj, key, obj[key])
+      //   })
+      // }
+
+      // var obj = {
+      //   a: 1,
+      //   b: 2
+      // }
+
+      // observe(obj)
+    </script>
+    <script>
+      // 已经可以监测到属性的获取和设置动作。
+      // 这里举个例子，身高影响体重。一个人身高在变，体重根据身高重新计算，称体重为计算属性，是根据其他依赖值计算而来
+
+      /* 上面代码不变 */
+      function observe(obj) {
+        var keys = Object.keys(obj);
+        keys.forEach(function(key) {
+          defineReactive(obj, key, obj[key]);
+        });
+      }
+
+      function defineReactive(obj, key, val) {
+        Object.defineProperty(obj, key, {
+          get: function() {
+            return val;
+          },
+          set: function(newVal) {
+            val = newVal;
+          },
+          enumerable: true,
+          configurable: true
+        });
+      }
+
+      /* 计算属性 */
+      function computeProp(val) {
+        console.log(val);
+      }
+
+      // 检测对象的某个属性，发生变化，调用cb，计算出对应值给计算属性
+      /* 观察者 */
+      function watcher(obj, key, cb) {
+        Object.defineProperty(obj, key, {
+          get: function() {
+            var computeVal = cb();
+            computeProp(computeVal);
+            return computeVal;
+          },
+          set: function() {
+            // 不允许修改
+            console.log('理论上计算属性值不允许修改');
+            return false;
+          }
+        });
+      }
+
+      var people = {
+        health: 170,
+        weight: 120
+      }
+
+      observe(people)
+
+      watcher(people, 'weight', function(){
+        console.log('体重改变')
+      })
+    </script>
+  </body>
+</html>

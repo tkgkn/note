@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<ul>
+		<li>利用writable:false和configurable:false，创建出一个真正的常量。</li>
+		<script>
+			var myObject = {};
+			Object.defineProperty(myObject, "FAVORITE_NUMBER",{
+				value: 42,
+				writable: false,
+				configurable: false
+			});
+		</script>
+		<li>禁止扩展，如果想要禁止一个对象添加新属性并且保留已有属性，可以用Object.preventExtensions()</li>
+		<script>
+			var myObject = {
+				a: 2
+			};
+			Object.preventExtensions(myObject);
+			myObject.b = 3;
+			console.log(myObject.b); // undefined  静默失败了。当然严格模式下依旧报错TypeError
+		</script>
+		<li>还可以密封，再preventExtensions的基础上，将configurable设为false，密封后不仅不能添加新属性，有也不能重新配置或者删除任何现有属性</li>
+		<script>
+			// Objectj.seal() 方法
+		</script>
+		<li>冻结，在Object.seal的基础上，设置writable为false，这样就无法修改他们了</li>
+		<script>
+			// Object.freeze()
+		</script>
+	</ul>
+</body>
+</html>

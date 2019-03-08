@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+
+<body>
+  <div class="eg">
+    <p>字符串可以看成
+      <span class="red">字符数组</span>
+    </p>
+    <script>
+      var a = "foo";
+      var b = ["f", "o", "o"];
+      // 都支持length和indexOf和concat
+      console.log(a.length)
+      console.log(b.length)
+      console.log(a.indexOf('o'));
+      console.log(b.indexOf('o'));
+      var c = a.concat('bar');
+      var d = b.concat(['b', 'a', 'r']);
+    </script>
+  </div>
+  <div class="eg">
+    <p>但不意味着它们都是
+      <span class="red">字符数组</span>
+    </p>
+    <script>
+      // js中字符串是不可变的，数组是可变的。
+      a[1] = 'O';
+      b[1] = 'O';
+      console.log(a, b);
+
+      // 旧版本IE下也不支持a[1]
+      console.log(a.charAt(1));
+    </script>
+  </div>
+  <div class="eg">
+    <p>数组方法可以用来处理字符串。通过
+      <span class="red">借用</span>
+    </p>
+    <script>
+      console.log(a.join, a.map)
+      var c = Array.prototype.join.call(a, '-');
+      var d = Array.prototype.map.call(a, function (v) {
+        return v.toUpperCase() + ',';
+      }).join('');
+      console.log(c, d)
+    </script>
+  </div>
+  <div class="eg">
+    <p>字符串反转
+      <span class="red">reverse</span>
+    </p>
+    <script>
+      // 字符串是不可变的
+      var a = 'foo';
+      var b = ['f', 'o', 'o'];
+      a.reverse; // undefined
+      console.log(b.reverse());
+      try {
+        console.log(Array.prototype.reverse.call(a));
+      } catch (error) {
+        console.log(error)
+      }
+      // 变通方式，转数组，反转，转字符
+      console.log('foo'.split('').reverse().join(''));
+    </script>
+  </div>
+</body>
+
+</html>

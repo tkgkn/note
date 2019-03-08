@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>类的设计模式：实例化，继承，多态</p>
+    <ul>
+        <li>实例化：实质是对类的复制，类就是建筑蓝图，根据蓝图建造出来的房子，就是实例。</li>
+        <li>继承：经典的例子</li>
+        <script>
+        // 伪代码
+        class Vehicle {
+            engines = 1
+
+            ignition() {
+                output("Turning on my engine.")
+            }
+
+            drive() {
+                ignition()
+                output("Steering and moving forward!")
+            }
+        }
+
+        class Car inherits Vehicle {
+            wheels = 4
+
+            drive() {
+                inherited: drive()
+                output("Rolling on all ", wheels, " wheels!")
+            }
+        }
+
+        class SpeedBoat inherits Vehicle {
+            engines = 2
+
+            ignition() {
+                output("Turning on my ", engines, " engines.")
+            }
+
+            pilot() {
+                inherited: drive()
+                output("Speeding through the water with ease!")
+            }
+        }
+        </script>
+        <li>多态：子类继承父类，且子类可以重写继承自父类的原始方法。这种方法称为多态</li>
+        <script>
+        	// 许多语言可以使用super来代替上面代码中的继承inherited:，含义是超类，表示当前类的父类/祖先类
+        	// 多态的另一个方面是，在继承链的不同层次，一个方法名可以被定义多次，当调用方法时会自动选择合适的定义。
+        	// super另一个功能就是，可以从子类的构造函数中通过super直接调用父类的构造函数。对于真正的类来说，构造函数是属于类的，而JS中，相反，类属于构造函数，因为只有构造函数被调用了，才能有prototype这种JS中模拟类的原型。
+        </script>
+        <p>另外，还有一点是，在上面伪代码中，pilot中继承了Vehicle的drive方法，而Vehicle中的drive方法直接通过名字引用了ignotion方法，而SpeedBoat类本身，又定义了ignition方法。所以究竟会引用Vehicle还是SpeedBoat类中的ignition方法？</p>
+        <p>答案是：ignition()方法定义的多态性取决于你是在哪个类的实例中引用他。如果是实例化了SpeedBoat类，则调用SpeedBoat中的方法</p>
+    </ul>
+    <p>多态和继承的一个小总结：子类得到的仅仅是继承自父类行为的一个副本，可以对继承到的方法重写，不会影响父类方法，2个方法互不影响，类的继承其实就是复制。</p>
+
+    <!-- 多重继承 -->
+    <p>多重继承有很多复杂的问题，比如：</p>
+    <p>D继承自B和C，B和C继承自A。A中有方法drive，B和C分别重写了drive方法，那D引用drive时应当选择B:drive还是C:drive</p>
+    <p>但是，在JS的世界里，没有多重继承，所以就简单了很多。</p>
+</body>
+
+</html>

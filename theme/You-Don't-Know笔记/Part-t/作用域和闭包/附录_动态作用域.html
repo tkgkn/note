@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>javascript的作用域就是词法作用于（大部分语言都是基于词法作用于的）</p>
+    <p>当然动态作用域是javascript另一个重要机制this的表亲</p>
+    <p>重申：</p>
+    <p>词法作用域是一套关于引擎如何寻找变量，在何处找到变量的规则。最重要的特征就是，定义过程发生在代码的书写阶段</p>
+    <script>
+    function foo() {
+        console.log(a); //2  一眼望去代码，词法作用域下，foo()函数和var a = 2的声明都是全局的，因此console.log(a)打印的是2。
+    }
+
+    function bar() {
+        var a = 3;
+        foo();
+    }
+
+    var a = 2;
+    bar();
+    </script>
+    <p>感到困惑，心想foo是在bar中被调用，调用的那一刻，找到外部作用域中的a，应该是3来着。</p>
+    <p>书中解释，如果假设javascript具有动态作用域。这里就应该打印3。</p>
+    <p>动态作用域不关心函数和作用域是如何声明，在何处声明，只管调用，谁，在何处调用。如果按这个思想，foo是在bar中被调用，console的话，应该是3。</p>
+    <p style="color: red">还有个需要明确的是，通常我们会把词法作用域的一层一层往外面找变量的规则，想当然的用在动态作用域中，就比如这个例子中，foo函数依据一层层往外的原则，找到了外层的a变量3，因此将其打印出来，但其实并不是，动态作用域链是基于调用栈，即牢记，谁调用了它，并不是依据想当然的作用域嵌套。</p>
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>ES6中有个主题用非常重要的方式将this同词法作用域联系起来了</p>
+	<script>
+		// 箭头函数
+		var foo = a => {
+			console.log(a); //2
+		};
+		foo(2);
+		// 这里的胖箭头写法通常被当做function关键字的简写。
+		// 最显而易见的好处就是我们可以少写几个字了。但除此之外，更重要的作用还有。
+	</script>
+	<script>
+		// var obj = {
+		// 	id: "awesome",
+		// 	cool: function coolFn(){
+		// 		console.log(this.id);
+		// 	}
+		// };
+
+		// var id = "not awesome";
+		// obj.cool(); // awesome
+		// setTimeout(obj.cool,100); // not awesome; 因为这里调用coolFn是通过setTimeout调用的，也就是window.setTimeout()，这里的this指向window，所以访问的也是全局中的id。但是这失去了原本我们写代码时想要的那种效果，this.id访问的就是obj对象自身里面的id，结果并不是，我们丢失了coolFn()函数和this之间的绑定。解决这种问题，最常用的解决办法是，指明this。
+	</script>
+	<script>
+		// var obj = {
+		// 	id: "awesome",
+		// 	cool: function coolFn(){
+		// 		var self = this;	//以为会有作用，但是并没有，弄清楚this的指向，谁调用的，this就指向谁，this是动态作用域的表亲，不是在你写代码的时候就明确的，而是在运行的时候明确的。因此，这里的var self = this，并没有像我预期的那样子将this绑定为obj，这是词法作用域的事，this跟此无关。因此并没有将obj对象本身绑定在self上。
+		// 		console.log(self.id);
+		// 	}
+		// }
+		// var id = "not awesome";
+		// obj.cool();
+		// setTimeout(obj.cool,100); // 这里，依旧是在全局中被调用window.setTimeout()，是被window调用的，因此，var self = this 即 var self = window
+	</script>
+
+	<!-- 当然var self = this 依旧还是绑定this最有用的，看你用在哪里，怎么用！ -->
+	<script>
+		// var obj = {
+		// 	count: 0,
+		// 	cool: function(){
+		// 		var self = this;  // 这里将this即obj对象绑定给了self
+		// 		if (self.count < 1) {
+		// 			setTimeout(function timer(){
+		// 				self.count++;  //这里利用的词法作用域原则，setTimeout函数可以访问外层的作用域中的self，因此直接拿到obj对象，如果这里用了this，拿的就是window.count了，全局中不存在，但Js会自动生成，window.count = undefined
+		// 				console.log("awesome?");
+		// 			},100)
+		// 		}
+		// 	}
+		// };
+		// obj.cool(); // awesome?
+	</script>
+	<p>经常这么写var self = this，容易烦，因此ES6的箭头函数引入了叫做this词法的行为</p>
+	<script>
+		// var obj = {
+		// 	count: 0,
+		// 	cool: function coolFn(){
+		// 		if (this.count < 1) {
+		// 			setTimeout(()=>{
+		// 				this.count++;
+		// 				console.log("awesome?");
+		// 			},100)
+		// 		}
+		// 	}
+		// };
+		// obj.cool(); // 尽然也是awesome? 按道理将setTimeout调用时的this是window。
+		// 神奇之处在于箭头函数用当前词法作用域覆盖了this本来的值，也就是说=>函数将当前coolFn()的词法作用域覆盖了setTimeout中的this原本的值，也就是覆盖了window。
+		// 一句话，定时器里的this继承了coolFn函数的this绑定。coolFn函数的this绑定的就是obj。
+	</script>
+	<p>ES6的箭头函数引入的这个this词法行为，解决了大多数程序猿包括我自己在内的，经常将词法作用域和this绑定规则的混淆在一起。多数都会用词法作用域的思想来理所当然的去认为this的规则</p>
+	<script>
+		// this和词法作用域的风格，尽量不要混用，只用一种最好。
+		// 当然上面的代码用到的箭头函数也有不够理想的地方，就是匿名。
+		// 因此，解决上面2个问题的一个更合适的犯法是正确使用和包含this机制。
+		var obj ={
+			count: 0,
+			cool: function coolFn(){
+				if (this.count < 1) {
+					setTimeout(function timer(){
+						this.count++; //this是安全的并不是window，因为用了bind
+						console.log("more awesome");
+					}.bind(this),100); // 这里的bind是定时器中this安全的原因
+				}
+			}
+		}
+		obj.cool();
+	</script>
+	<!-- 总结 -->
+	<p>需要注意的是：</p>
+	<p>不管是箭头函数中this词法的新行为模式，还是更安全的bind()方法，都需要注意2点：不要混着词法作用域和this的绑定规则一起用，要知道箭头函数不仅仅可以少写代码，也可以让this行为词法化。</p>
+</body>
+</html>

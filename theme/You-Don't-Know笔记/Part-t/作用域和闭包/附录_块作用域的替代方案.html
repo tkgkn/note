@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>从ES3开始，就有了块作用域with和catch</p>
+    <p>ES6开始，引入了let，终于让代码有了完整的不受约束的能力。</p>
+    <p>ES6之前想用块作用域的话！</p>
+    <script>
+    {
+        let a = 2;
+        console.log(a); // 2
+    }
+    console.log(a); // ReferenceError
+    </script>
+    <p>ES6的环境中可以正常工作，但是在ES6以前，实现方式就是catch</p>
+    <script>
+    try {
+        throw 2;
+    } catch (a) {
+        console.log(a); // 2
+    }
+    console.log(a); // ES5的语法，利用catch来创建块作用域，这里报错ReferenceError
+    </script>
+    <p>弊端：</p>
+    <p>看起来就是一个强制抛错，代码可读性就变差了</p>
+
+    <h3>Tracuer</h3>
+    <p>Google维护的一个项目，可以将ES6代码转换成兼容ES6之前的环境（大部分是ES5，但不是全部）</p>
+    <script>
+        // 会将代码转换成什么样子
+        {
+            try{
+                throw undefined;
+            }catch(a){
+                a = 2;
+                console.log(a);
+            }
+        }
+        console.log(a);
+    </script>
+    <p>try catch的性能比较糟糕。如果不需要块作用域，还是依旧用var声明就可以了</p>
+</body>
+
+</html>

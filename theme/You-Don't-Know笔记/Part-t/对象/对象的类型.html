@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 类型 -->
+    <p>对象是Js的基础，Js中一共有6种主要类型</p>
+    <ul>
+        <li>string</li>
+        <li>number</li>
+        <li>boolean</li>
+        <!-- type of null之所以返回object，是因为语言本身设计的Bug -->
+        <li>null</li>
+        <li>undefined</li>
+        <!-- 唯一的对象类型 -->
+        <li>object</li>
+    </ul>
+    <p>常见的一种错误：JS中万物接对象，显然是错误的。</p>
+    <p>Js中有许多特殊的对象子类型，可以称为复杂基本类型。</p>
+    <p>函数是对象的一个子类型，JS中函数是一等公民，本质上和普通的对象一样。</p>
+    <p>数组也是对象的一个类型，具备一些额外的行为。</p>
+    <!-- 内置对象 -->
+    <ul>
+        <li>String</li>
+        <li>Number</li>
+        <li>Boolean</li>
+        <li>Object</li>
+        <li>Function</li>
+        <li>Array</li>
+        <li>Date</li>
+        <li>RegExp</li>
+        <li>Error</li>
+    </ul>
+    <p>在Js中，上面的内置对象实际上只是一些内置函数，可以当做构造函数来使用，从而可以构造出一个对应子类型的新对象。</p>
+    <p>举例来说</p>
+    <script>
+    var strPrimitive = "I am a string";
+    typeof strPrimitive; // string
+    console.log(strPrimitive instanceof String); // fasle
+
+    var strObject = new String("I am a string");
+    typeof strObject; // object
+    console.log(strObject instanceof String); // true
+
+    console.log(Object.prototype.toString.call(strObject));
+    </script>
+    <p>原始值strPrimitive并不是一个对象，因此判断instanceof String时返回false，但是如果要在这个字面量值上执行一些操作，比如获取字符长度等，JS会自动将其转换为String对象</p>
+    <script>
+    var strPrimitive = "I am a string";
+    console.log(strPrimitive.length); // 13
+    console.log(strPrimitive.charAt(3)); // m
+    // 同样的事也会发生在数值字面量上
+    console.log(42.555.toFixed(2)); // 42.55 先把42.555转成了new Number(42.555)
+    </script>
+    <p>但并不是所有的内置函数都有字面量和构造形式，有些只有一个，有些不管是字面形式还是构造形式都是对象</p>
+    <ul>
+        <li>null和undefined只有字面形式</li>
+        <li>Date只有构造形式</li>
+        <li>Object，Array，Function，RegExp字面和构造形式都是对象。</li>
+        <li>Error很少显示创建，抛出异常时会自动创建，也可以使用new的方式，但通常用不上</li>
+    </ul>
+    <p>首选字面形式创建对象。</p>
+</body>
+
+</html>

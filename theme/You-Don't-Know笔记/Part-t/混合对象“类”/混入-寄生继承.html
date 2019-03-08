@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>显示混入的模式的一种变体被称为“寄生继承”，它既是显示又是隐式</p>
+	<script>
+		// 传统的Js“类”如Vehicle
+		function Vehicle(){
+			this.engines = 1;
+		}
+		Vehicle.prototype.ignition = function(){
+			console.log("Turning on my engine");
+		};
+		Vehicle.prototype.drive = function(){
+			this.ignition();
+			console.log("Steering and moving forward");
+		}
+
+		// 寄生“类”Car
+		function Car(){
+			// car首先是一个Vehilce
+			var car = new Vehicle(); //this绑定到car上
+			// 对car进行定制
+			car.wheels = 4;
+			// 保存到Vehicle::drive的特殊引用
+			var vehDrive = car.drive; // car有了Vehicle上的属性和原型上的方法访问权利
+			// 重写Vehicle::drive
+			car.drive = function(){
+				vehDrive.call(this);
+				console.log("Rolling on all " + this.wheels + " wheels!");
+			};
+			return car;
+		}
+
+		// var myCar = new Car();
+		var myCar = Car();
+		myCar.drive(); 
+	</script>
+</body>
+</html>

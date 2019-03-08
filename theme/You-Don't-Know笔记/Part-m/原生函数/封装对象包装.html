@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+<body>
+  <div class="eg">
+    <p>基本类型能调用<span class="red">.length</span>和<span class="red">.toString</span>这样的属性和方法，是因为JS自动为基本类型值包装一个封装对象</p>
+    <script>
+      // 无需手动进行包装，反而降低性能
+      var a = 'abc';
+      a.length = 3; // 3
+      a.toUpperCase(); // ABC
+
+      // 注意
+      var a = new Boolean(false); // a对象存在
+      if (!a) {
+        console.log('执行不到这里')
+      }
+    </script>
+  </div>
+</body>
+</html>

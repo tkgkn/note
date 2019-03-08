@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>用with创建出来的作用域仅仅在with声明中有效果。</p>
+	<script>
+		function foo(obj){
+			with(obj){
+				a = 2;
+			}
+		}
+
+		var o1 = {
+			a: 3
+		};
+
+		var o2 = {
+			b: 3
+		};
+
+		foo(o1);
+		console.log(o1.a); 
+
+		foo(o2);
+		console.log(o2.a); //undefined
+		console.log(a) // 2  在o2 foo 全局都没有找到a变量，因此自动创建了一个a在全局
+	</script>
+</body>
+</html>

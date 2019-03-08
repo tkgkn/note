@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+
+<body>
+  <div class="eg">
+    <p>只有一种数值类型，包括
+      <span class="red">整数</span>和
+      <span class="red">带小数的十进制</span>
+    </p>
+    <script>
+      // 数字的语法
+      var a = 42;
+      var b = 42.3;
+      var c = 0.42;
+      var d = .42; // 可以省略0
+    </script>
+  </div>
+  <div class="eg">
+    <p>对于
+      <span class="red bold">.</span>运算符，需注意，它是一个有效的数字字符，
+      <span class="red">优先识别成数字常量的一部分</span>
+    </p>
+    <script>
+      // 因此才是这样
+      try {
+        // console.log(42.toFixed(3)); // Uncaught SyntaxError: Invalid or unexpected token
+        console.log((42).toFixed(3))
+        console.log(42. toFixed(3));
+      } catch (error) {
+        console.log(error)
+      }
+    </script>
+  </div>
+  <div class="eg">
+    <p>较小的数值处理</p>
+    <script>
+      // 由于IEEE 754规范导致
+      console.log(0.1 + 0.2 === 0.3)
+      console.log(0.1 + 0.2); // 0.30000000000000004
+
+      // 常见处理方式：设置一个误差范围
+      // 对Js来说，通常是 2^-52 (2.220446049250313e-16)
+      // ES6中定义在Number.EPSILON
+      // polyfill
+      if (!Number.EPSILON) {
+        Number.EPSILON = Math.pow(2, -52);
+      }
+
+      function numberCloseEnoughToEqual(n1, n2) {
+        return Math.abs(n1 - n2) < Number.EPSILON;
+      }
+      var a = 0.1 + 0.2;
+      var b = 0.3;
+      console.log(numberCloseEnoughToEqual(a, b));
+    </script>
+  </div>
+  <div class="eg">
+    <p>JS的整数安全范围</p>
+    <script>
+      // max
+      console.log(Math.pow(2, 53) - 1)
+      // min
+      console.log(-(Math.pow(2, 53) - 1));
+    </script>
+  </div>
+  <div class="eg">
+    <p>是否是整数的检测</p>
+    <script>
+      // ES6 isInteger
+      Number.isInteger(42);
+      Number.isInteger(42.000);
+      Number.isInteger(42.3);
+
+      // polyfill
+      if (!Number.isInteger) {
+        Number.isInteger = function (num) {
+          return typeof num === 'number' && num % 1 === 0
+        }
+      }
+
+      // ES6 isSafeInteger
+      console.log(Number.isSafeInteger(Number.MAX_SAFE_INTEGER)); // true
+      console.log(Number.isSafeInteger(Math.pow(2, 53))); // false
+      console.log(Number.isSafeInteger(Math.pow(2, 53) - 1)); // true      
+      // polyfill
+      if (!Number.isSafeInteger) {
+        Number.isSafeInteger = function (num) {
+          return Number.isInteger(num) && Math.abs(num) <= Number.MAX_SAFE_INTEGER;
+        }
+      }
+    </script>
+  </div>
+  <div class="eg">
+    <p>特殊数值</p>
+    <ul>
+      <li class="indent">
+        <span class="red">null</span>赋值过，现在是空值</li>
+      <li class="indent">
+        <span class="red">undefined</span>从未赋值过</li>
+    </ul>
+  </div>
+  <div class="eg">
+    <p>undefined，非严格模式可予其赋值</p>
+    <script>
+      function foo() {
+        undefined = 2;
+      }
+      console.log(foo())
+    </script>
+    <p>
+      <span class="red">void</span>让表达式返回undefined</p>
+    <script>
+      console.log(void 3);
+    </script>
+  </div>
+  <div class="eg">
+    <p>特殊的数字</p>
+    <script>
+      // NaN
+      var a = 2 / 'foo';
+      console.log(a); // NaN
+      console.log(typeof a); // number
+      console.log(a == NaN, a === NaN); // false false
+
+      // 常用的isNaN 全局的，判断不是NaN，也不是数字
+      var b = 'foo';
+      console.log(isNaN(b)); // true 所以不是数字类型，这个判断肯定也是对的，不安全
+
+      // ES6中 Number.isNaN方法OK。
+      console.log(Number.isNaN(a)); // true
+      console.log(Number.isNaN(b)) // false
+
+      // 可利用NaN != NaN 的特性
+      if (!Number.isNaN) {
+        Number.isNaN = function (n) {
+          return n !== n;
+        }
+      }
+    </script>
+  </div>
+  <div class="eg">
+    <p>值和引用</p>
+    <script>
+      var a = 2;
+      var b = a;
+      b++;
+      console.log(a, b); // 2, 3
+
+      var c = [1, 2, 3];
+      var d = c;
+      d.push(4);
+      console.log(c, d); // [1,2,3,4] [1,2,3,4]
+
+      function foo(x) {
+        x.push(4); // 还是指向a
+        x; // [1, 2, 3, 4]
+        
+        x = [4 ,5, 6]; // x 的引用地址被重新赋值，完全改写了，指向[4, 5, 6]，跟原本的a没有关系
+        x.push(7); // [4, 5, 6, 7];
+        return x;
+      }
+      var a = [1, 2, 3];
+      console.log(foo(a));
+      console.log(a); // [1, 2, 3, 4]
+
+      var arr = [1,2,3,4,5];
+      console.log(foo(arr.slice()));
+      console.log(arr);
+
+      // 相反对于基本类型（非引用），可以封装到对象称为引用传递，然后修改值。
+      function foo(wrapper) {
+        return wrapper.a = 42; // 基本类型值42
+      }
+      var obj = {
+        a: 2
+      };
+      foo(obj);
+      obj.a; // 42
+    </script>
+  </div>
+</body>
+
+</html>

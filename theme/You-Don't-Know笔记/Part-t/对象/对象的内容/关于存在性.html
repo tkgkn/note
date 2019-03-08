@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+    var myObject = {
+        a: 2
+    };
+
+    ("a" in myObject); // true
+    ("b" in myObject); // false
+
+    myObject.hasOwnProperty("a"); // true
+    myObject.hasOwnProperty("b"); // false
+
+    // in操作符会检查对象本身和其[[Prototype]]原型链中，并不能用来检测数组中是否存在某一个值，in只会访问属性名，对于数组来说就是下标0,1,2...
+    // hasOwnProperty只会检查对象本身
+    </script>
+    <p>所有的普通对象都可以通过对于Object.prototype的委托，来访问hasOwnPrototype方法，但是有的对象没有连接到Object.prototype，通过Object.create(null)回创建一个纯净的新对象，不包含prototype，这时，你用hasOwnPrototype就失败了。</p>
+    <p>但是可以使用下面的更加加强的方式来进行判断，暂不清楚可行否？</p>
+    <script>
+    // Object.prototype.hasOwnProperty.call(myObject,"a");
+    // 显示绑定到myObject上去
+    </script>通过
+    <p>枚举属性</p>
+    <script>
+    var myObject = {};
+    Object.defineProperty(myObject, "a", {
+        enumerable: true,
+        value: 2
+    });
+    Object.defineProperty(myObject, "b", {
+        enumerable: false,
+        value: 3
+    })
+    myObject.b; // 3
+    ("b" in myObject); // true
+    myObject.hasOwnProperty("b"); // true
+
+    for(var k in myObject){
+    	console.log(k,myObject[k]); // a, 2
+    }
+
+    // b并没有被枚举出来。
+    // 在数组上应用for in有时候会产生意料之外的结果，因为除了会枚举出所有数组索引，还有所有可枚举的属性，数组能增加属性的。所以数组循环就用for
+    </script>
+    <p>另一种方式区分属性是否可以枚举</p>
+    <script>
+    	// 接着上面的myObject
+    	console.log(myObject.propertyIsEnumerable("a")); // true 检查属性是否存在与对象本身上面
+    	console.log(myObject.propertyIsEnumerable("b")); // false
+    	Object.keys(myObject); // ["a"]  keys()可以列出对象直接包含的所有的可枚举属性，返回一个数组
+    	Object.getOwnPropertyNames(myObject); // ["a", "b"]  getOwnPropertyNames()列出所有对象直接包含的属性
+    </script>
+</body>
+
+</html>

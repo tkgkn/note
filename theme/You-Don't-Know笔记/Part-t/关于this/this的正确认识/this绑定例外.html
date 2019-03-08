@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 倍忽略的this -->
+    <p>用call或者apply或者bind显示绑定this到null，undefined，调用时会被忽视，实际应用默认规则</p>
+    <script>
+    function foo() {
+        console.log(this.a);
+    }
+    var a = 2;
+    foo.call(null); // 2;
+    </script>
+    <p>什么情况下我们会将显示绑定一个null</p>
+    <script>
+    // 比如利用apply来展开一个数组，并当做参数传入一个函数。类似的bind可以额对参数进行柯里化（预先设置一些参数）。
+    function foo(a, b) {
+        console.log("a:" + a + ", b:" + b);
+    }
+
+    // 把数组“展开”成参数
+    foo.apply(null, [2, 3]); // a:2,b:3
+
+    // 使用bind进行柯里化
+    var bar = foo.bind(null, 2);
+    bar(3); //a:2,b:3
+    </script>
+    <p>上面2种方法都需要传一个参数作为this的绑定对象，如果函数并不关心this的指向，你仍然需要传入一个占位值，这时null可能是一个不错的选择。</p>
+    <p>但是如果某些第三方库中的一个函数的确使用到了this，那上面这么写会导致this绑定到全局对象上，会导致严重的后果。查bug也不容易。</p>
+    <p>因此，需要一个极为安全的空对象来绑定this</p>
+    <script>
+    // 这种对象也叫DMZ对象，一个空的非委托的对象。
+    // 也许你想的是创建这样的var obj = {}就是一个空对象，但是这样会有一个Object.prototype这个委托。
+    // 这么创建时最空的。
+    function foo(a, b) {
+        console.log("a:" + a + ", b:" + b);
+    }
+
+    // 我们创建一个DMZ空对象
+    var nullObj = Object.create(null);
+
+    // 把数组“展开”成参数
+    foo.apply(nullObj, [2, 3]); //a:2,b:3
+
+    // 使用bind进行柯里化
+    var bar = foo.bind(null, 2);
+    bar(3); //a:2,b:3
+    </script>
+
+    <!-- 间接引用 -->
+    <script>
+    function foo() {
+        console.log(this.a);
+    }
+    var a = 2;
+    var o = {a: 3, foo: foo};
+    var p ={a: 4};
+    o.foo(); // 3
+    (p.foo = o.foo)(); // 2   这里不要被迷惑了，o.foo是对全局foo的函数引用，赋值给了p.foo = foo，(p.foo = o.foo)() === (foo)()  因此这里使用的是默认绑定规则。
+    </script>
+</body>
+
+</html>

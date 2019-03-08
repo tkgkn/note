@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>大多数模块依赖加载器/管理器，本质上都是将这种模块定义封装进一个友好的API</p>
+    <!-- 宏观了解，简单的看下核心 -->
+    <script>
+    // 模块加载器
+    var MyModules = (function Manager() {
+        var modules = {};
+
+        function define(name, deps, impl){
+        	for (var i = 0; i < deps.length; i++) {
+        		deps[i] = modules[deps[i]];
+        	}
+        	modules[name] = impl.apply(impl, deps); // impl就是define的模块的主体实现函数？ function module(){}.apply(module,deps) 定义的模块函数调用时，传进参数deps，也就是依赖传进这个define的模块的主体实现函数里。
+        }
+
+        function get(name){  // 返回模块本身，类似于返回一个模块化实例对象，然后通过这个对象实例调用模块暴露的API
+        	return modules[name];
+        }
+
+        return {
+        	define: define,
+        	get: get
+        }
+    })();
+
+    // 展示如何使用这个模块加载器
+    MyModules.define("bar",[],function(){
+    	function hello(who){
+    		return "Let me introduce: " + who;
+    	}
+
+    	return {
+    		hello: hello
+    	};
+    });
+
+    MyModules.define("foo",["bar"],function(bar){ // 因为上面的define中fn.apply(fn,deps)这句，fn是依赖deps的，这里deps就是["bar"]，传递进fn后，fn要有个形参来接收这个deps，这里又用了bar来接收，好记。
+    	var hungry = "hippo";
+    	function awesome(){
+    		console.log(bar.hello(hungry).toUpperCase());
+    	}
+    	return {
+    		awesome: awesome
+    	};
+    })
+
+    var bar = MyModules.get("bar"); //调用后就相当于实例化了模块bar。bar模块返回的API，直接赋给bar，bar因此含有模块的公共API的引用。
+    var foo = MyModules.get("foo");
+    console.log(
+    	bar.hello("hippo") // Let me introduce: hippo
+    );
+    foo.awesome(); // LET ME INTRODUCE: HIPPO
+    </script>
+</body>
+
+</html>

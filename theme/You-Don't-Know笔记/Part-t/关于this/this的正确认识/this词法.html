@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>困惑，this不是动态的吗，还有词法？</p>
+	<p>有，在ES6语法中，四种绑定规则并不适ES6独有的箭头函数=></p>
+	<p>=>箭头函数根据外层作用域来决定this</p>
+	<script>
+		function foo(){
+			// 返回一个箭头函数
+			return (a)=>{
+				// this继承自外层的foo
+				console.log(this.a);
+			}
+		}
+		var obj1 = {
+			a: 2
+		};
+
+		var obj2 ={
+			a: 3
+		};
+
+		var bar = foo.call(obj1); // 不适用之前说的4种绑定规则。因为最开始foo函数中的this绑定了obj1，因此，foo作用域中的this指向了obj1，赋值给bar后，bar中的this也是指向obj1的。箭头函数的绑定是无法被修改的。
+		bar.call(obj2); // 2 不是3
+		// 箭头函数的作用：可以像bind一样确保函数的this被绑定到指定对象。
+		// 用更为常见的词法作用域取代了传统的this机制。
+	</script>
+	<p>其实在ES6之前，我们就已经在使用和=>函数一样的模式了</p>
+	<script>
+		function foo(){
+			var self = this; // 利用词法作用域原则，将this给了self。self不会再后面变动
+			setTimeout(function(){
+				console.log(self.a);  // 这里的self就是obj，因为foo.call(obj)显示绑定this到obj上，但如果这里不用self.a，而是用this.a，那么由于setTimeout是属于全局调用，this指向了window，也就是window.a就是undefined
+			})
+		}
+
+		var obj = {
+			a:2
+		}
+
+		foo.call(obj); // 2; 
+	</script>
+	<p>虽然self = this 和 箭头函数看起来都可以取代bind，但是从本质上说，他们其实是想取代this机制。</p>
+	<p>总结：</p>
+	<ul>
+		<li>要么只用词法作用域完全抛弃错误this本身的机制</li>
+		<li>要么完全使用this独特的机制，必要时使用bind，避免使用self = this和箭头函数=></li>
+	</ul>
+</body>
+</html>
