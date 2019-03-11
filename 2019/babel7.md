@@ -102,13 +102,15 @@ module.exports = function() {
 
 ## Polyfill
 
-之前提到过，模拟 ES5+的环境。也会少量的在原型链如 String 上添加一些方法，如`includes`。官方推荐使用`@babel/preset-env`，并且设置该`presets`选项的配置`useBuildIns`使用。这样可以达到的效果，我们只需要引入我们用到的`polyfill`代码。如果你全要，那你就手动导入`polyfill`好了。
+之前提到过，模拟 ES5+的环境。也会少量的在原型链如 String 上添加一些方法，如`includes`。官方推荐使用`@babel/preset-env`，并且设置该`presets`选项的配置`useBuildIns`使用。这样可以达到的效果，我们只需要引入我们用到的`polyfill`代码。
+
+如果你需要所有的ES5+的静态方法，实例方法已经新的API，那你就需要手动在入口文件顶部导入`@babel-polyfill`，缺点是，这样子是会污染全局环境的。
 
 ## 使用位置
 
 不管是`CommonJS`还是`ES6 Modules`，我们都需要在应用的入口文件的顶部，加载`@babel/polyfill`。
 
-和`webpack`构建工具一起使用的话，我们有 3 种方式引入`polyfill`。通过设置`useBuildIns`。
+和`webpack`构建工具一起使用的话，我们有 3 种方式引入`polyfill`。在`.babelrc`中对`presets`里的`env`进行配置项设置，设置`useBuildIns`。
 
 1. 默认是`false`，相当于着在`webpack.config.js`的`entry`数组头部直接加入。
 
@@ -126,7 +128,7 @@ module.exports = {
 
 ## plugin-transform-runtime
 
-这个插件，可以重用`Babel`注入的`helper`代码，目的是为了减少代码体积。
+这个插件，可以重用`Babel`注入的辅助代码，目的是为了减少代码体积。
 
 ```js
 // 开发依赖
@@ -135,4 +137,14 @@ module.exports = {
 // 生产依赖
 `yarn add @babel/runtime`
 ```
+前者主要是将`helper`代码自动从`babel-runtime/core-js`中引入，不需要我们手动去写。后者相当于一个独立出来的模拟ES5+的环境包，是在打包的时候需要用到的，但为了不污染全局，一些实例属性不能使用。所以这两者是搭配使用的。
 
+## 常用实践
+
+希望达到，复用代码，缩小代码体积，功能还能很全的目标。
+
+**复用代码**，我们需要使用`transform-runtime-plugin`，在开发阶段，自动重写我们的导入代码，全部从`babel/runtime`中导入。
+
+**缩小代码体积**，我们需要按需加载，`transform-runtime-plugin`和`babel/runtime`结合使用就可以达到按需加载，插件会分析我们用到了哪些新的API，如`promise`，则从`import promise2 from '@babel/runtime/core-js/promise`，注意到这里使用的是promise2，所以避免了全局污染。
+
+**功能全**，光有`@babel/runtime`，还不够，它只能帮我们模拟出大部分ES5+环境，但是如`'hello'.includes('h')`等实例方法，是没有的，原因就是不污染全局环境。所以我们还需要`babel-polyfill`，但是`babel-polyfill`包含了完整的ES5+环境，包很大，且数据全局环境引入，会导致污染。所以我们需要一个`babel-preset-env`，这个预置其实就是包含了很多`plugins`，需要哪个，我们用哪个，可以根据开发环境来选择，已达到最小使用`babel-polyfill`，需要设置`useBuildIns`为`usage`，意为不直接引入`babel-polyfill`，而只单独加载用到的。
