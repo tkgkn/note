@@ -10,7 +10,7 @@ interface IProps extends DefaultProps {
   onChange: React.FormEventHandler<HTMLInputElement> // 推荐这种写法让TS自己推断。也可以像下面这样写。
   // onChange: (event: React.ChangeEvent<HTMLInputElement>) => void
   buttonSize: 'small' | 'middle' | 'big'
-} 
+}
 
 type DefaultProps = typeof UsefulReactProp.defaultProps
 
@@ -18,7 +18,7 @@ interface IState {
   value: string
 }
 
-class UsefulReactProp extends React.Component<IProps, IState>{
+class UsefulReactProp extends React.Component<IProps, IState> {
   static defaultProps = {
     initVal: '输入内容'
   }
@@ -26,12 +26,14 @@ class UsefulReactProp extends React.Component<IProps, IState>{
   // 创建一个dom引用
   static aDom = React.createRef<HTMLDivElement>()
 
+  static classProp?: string
+
   state = {
     value: this.props.initVal
   }
 
   defaultOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const {onChange} = this.props
+    const { onChange } = this.props
     this.setState({
       value: e.target.value
     })
@@ -40,19 +42,26 @@ class UsefulReactProp extends React.Component<IProps, IState>{
 
   render() {
     const { onChange, style, additionDom, renderReactNode } = this.props
-    const {value} = this.state
-    const btnSize = this.props.buttonSize === 'big' ? '100px' : this.props.buttonSize === 'small' ? '60px' : '80px;'
-    return <div>
-      <input type="text" value={value} onChange={this.defaultOnChange} />
-      <p className="desc" style={style}>这是个带样式的提醒</p>
-      <div className="additional">
-        {additionDom}
+    const { value } = this.state
+    const btnSize =
+      this.props.buttonSize === 'big'
+        ? '100px'
+        : this.props.buttonSize === 'small'
+        ? '60px'
+        : '80px;'
+    return (
+      <div>
+        <input type="text" value={value} onChange={this.defaultOnChange} />
+        <p className="desc" style={style}>
+          这是个带样式的提醒
+        </p>
+        <div className="additional">{additionDom}</div>
+        <div className="by-func-rcnode">
+          {renderReactNode ? renderReactNode() : null}
+        </div>
+        <button style={{ width: btnSize }}>按钮尺寸：联合类型提示</button>
       </div>
-      <div className="by-func-rcnode">
-        {renderReactNode ? renderReactNode() : null}
-      </div>
-      <button style={{width: btnSize}}>按钮尺寸：联合类型提示</button>
-    </div>
+    )
   }
 }
 
