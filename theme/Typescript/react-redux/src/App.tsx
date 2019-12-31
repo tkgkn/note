@@ -15,6 +15,7 @@ import OptionalProps from './optionalProps/index'
 import { FcCounter } from './Hoc/comp'
 import { withState } from './Hoc/index'
 import RcContext from './rcContext/provider'
+import './testPath/index'
 
 const HocCounterWithState = withState(FcCounter)
 
