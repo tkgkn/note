@@ -11,15 +11,19 @@ module.exports = {
   // 错误发生时，可以追溯到源码里具体位置
   devtool: 'inline-source-map',
   devServer: {
-    contentBase: './',
-    publicPath: '/assets/'
+    contentBase: './'
   },
   output: {
     // filename规定的是entry文件的文件名。
     filename: 'assets/[name].bundle.js',
     path: path.resolve(__dirname, 'dist')
     // 设置cdn地址用这个，最终打包后引用的资源地址是publicPath+filename
-    // publicPath: 'https://cdn.com.cn/'
+    // publicPath: '/assets/'
   },
-  plugins: []
+  plugins: [
+    new CleanWebpackPlugin(),
+    new HtmlWebpackPlugin({
+      title: 'development'
+    })
+  ]
 };

@@ -35,7 +35,7 @@ webpack-cli本身提供了`watch`方式。只需要在`package.json`中配置一
   > 需要注意的是：引用的资源路径是`publicPath+filename`的拼接，这里的`filename`是`output`配置项中的配置，即打包的文件名（具体打包的文件目录结构）
 
 ### webpack-dev-middleware
-`webpack-dev-server`实际上也是用的该中间件，封装好了给我们使用。直接使用middleware的话，可以操作的地方更多。可以结合`koa express`来实现。
+`webpack-dev-server`实际上也是用的该中间件，封装好了给我们使用。直接使用middleware的话，可以操作的地方更多。可以结合`express`来实现（注意该插件是express中间件的实现，不能直接用于Koa，因为中间件的写法不一样，参考[这篇文章来实现koa的webpack-dev-middleware中间件](https://segmentfault.com/a/1190000004883199)）
 
 ### 例子
 关于publicPath的使用，这里有个例子，配置如下
