@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<script src="http://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+</head>
+<body>
+	<p>ES6的class语法可以简洁的定义类方法，这个特性让class咋看起来更有吸引力</p>
+	<script>
+		class Foo{
+			methodName(){}
+		}
+	</script>
+	<p>ES6中，对象关联风格的对象可以省去function的关键字，但是不能省略元素之间的,分割</p>
+	<script>
+		var LoginController = {
+			errors: [],
+			getUser(){},
+			getPassword(){}
+		};
+	</script>
+	<p>当然，如果你用了class语法，连,都可以省略</p>
+	<p>如果用ES6，省略function关键字，且用对象字面形式来改写之前的例子，再用Object.setPrototypeOf()来修改[[prototoyp]]</p>
+	<script>
+		var AuthController = {
+			errors: [],
+			checkAuth(){
+
+			},
+			server(){
+
+			}
+		};
+
+		// 将AuthController关联到LoginController上
+		Object.setPrototypeOf(AuthController, LoginController);
+	</script>
+</body>
+</html>

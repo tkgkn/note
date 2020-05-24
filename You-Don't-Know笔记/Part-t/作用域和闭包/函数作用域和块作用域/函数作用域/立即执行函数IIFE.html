@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		// 函数声明被包在一个()内部，成为了一个表达式
+		// 表达式末尾又增加了()，则可以立即调用这个函数
+		var a = 2;
+		(function foo(){
+			var a = 3;
+			console.log(a); //3
+		})();
+		console.log(a);
+	</script>
+	<p>函数名对于IIFE不是必须的，通常都是匿名函数表达式。有名字的不多。但是有名字的具有匿名函数表达式的所有优势。</p>
+	<script>
+		// 改进模式，跟上面的在功能上一样，第二个括号的位置不一样。
+		// (function(){....}())
+	</script>
+	<p>IIFE非常普遍的进阶用法是当做函数调用，并传递参数</p>
+	<script>
+		var a = 2;
+		(function IIFE(global){
+			var a = 3;
+			console.log(a); // 3
+			console.log(global.a); // 2
+		})(window);
+		console.log(a); //2
+	</script>
+	<p>这个模式的另一个应用场景：解决undefined标识符的默认值被错误覆盖的异常</p>
+	<script>
+		// 'use strict';
+		undefined = true;  //修改了undefined变量。绝对不要这么干。
+		(function IIFE(undefined){  //参数接收一个undefined，但是不传递。则这里的undefined就绝对是undefined
+			var a;
+			if (a === undefined) {
+				console.log("Undefined is safe here");
+			}
+		})();
+	</script>
+	<p>还有一种用处是倒置代码的运行顺序，将需要运行的函数放在第二位，在IIFE执行之后当做参数传递进去</p>
+	<script>
+		var a = 2;
+		(function IIFE(def) {
+			def(window);
+		})(function def(global){
+			var a = 3;
+			console.log(a); //3
+			console.log(global.a); //2
+		})
+	</script>
+</body>
+</html>

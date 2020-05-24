@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <p>用块作用域来完成闭包函数作用域在循环中的工作</p>
+    <script>
+    // for (var i = 0; i < 5; i++) {
+    // 	let j = i; // 闭包的块作用域！   Let劫持了当前的循环。
+    // 	setTimeout(function(){
+    // 		console.log(j);
+    // 	},j * 1000);
+    // }
+    </script>
+    <p>for循环里的声明如果用Let的话，这个行为被认为在循环过程中不止被声明一次，每次迭代都会声明，随后每个迭代都会使用上一个迭代结束时的值来初始化这个变量。</p>
+    <script>
+    // for (let i = 0; i <= 5; i++) {
+    //     setTimeout(function timer() {
+    //         console.log(i);
+    //     }, i * 1000);
+    // }
+    </script>
+    <script>
+    // for (var i = 0; i < 10; i++) {
+    //     setTimeout(() => console.log("i:", i), 1000);
+    // }
+    for (let i = 0; i < 6; i++) {
+        setTimeout(() => console.log("i:", i), 1000 * i);
+    }
+    </script>
+</body>
+
+</html>

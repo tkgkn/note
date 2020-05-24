@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>引擎解释JS代码前，会先进行编译。而找到所有的声明，并用合适的作用域将它们关联起来也是编译阶段的工作之一</p>
+	<p>因此，不难解释，所有的变量和函数在内的声明都会在代码执行前先处理。</p>
+	<script>
+		var a = 2; //我们看起来就认为这是一个声明。但JS实际上将其看成 2个声明
+
+		var a; // 声明 （会在编译界阶段处理）
+		a = 2; // 声明 （会留在执行阶段）
+	</script>
+	<script>
+		// 因此 上面的第二段代码
+		console.log(a);
+		var a = 2;
+
+		// 应该看成
+		var a;
+		console.log(a);  // 因此是undefined
+		a = 2;
+	</script>
+	<p>所以，先声明后，再进行赋值</p>
+
+	<p>注意的是：除了声明的第一部分（编译阶段的），其他操作（包括执行阶段的声明也就是a = 2）一概留在原地</p>
+	<script>
+		foo();
+		function foo(){
+			console.log(a); //undefined
+			var a = 2;
+		}
+
+		// 这段被JS编译后可以看成
+		function foo(){   //foo的声明被提升
+			var a;
+			console.log(a);
+			a = 2;
+		}
+		foo();  //因此会正常执行。
+	</script>
+
+	<p>但是仅仅只有函数声明能被提升，函数表达式不行</p>
+	<script>
+		foo(); //Uncaught TypeError: foo is not a function  TypeError错误，变量和参数不是预期类型时报错。这里，var foo的确将foo这个标识符提升了，但是因为不是函数声明而是表达式，因此foo没有值，而是undefined，对undefined进行()调用，预期的foo并不是函数，报错。
+
+		bar(); //ReferenceError  即便是一个具名的函数表达式，但是依旧不能被使用
+
+		var foo = function bar(){
+			console.log(2); 
+		}
+	</script>
+	<script>
+		// 以上代码会被理解为
+		var foo;
+		foo(); //TypeError
+		bar(); //ReferenceError
+		foo = function(){
+			var bar = ...self... ; // 函数本身
+		}
+	</script>
+</body>
+</html>

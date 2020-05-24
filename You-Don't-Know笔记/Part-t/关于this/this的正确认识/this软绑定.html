@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <!-- 软绑定，暂时看不懂软绑定的实现 -->
+    <script>
+    if (!Function.prototype.softBind) {
+        Function.prototype.softBind = function(obj) {
+            var fn = this; // 这个this实际上利用了隐式绑定，比如foo.softBind的时候，那this就指向了foo。这个softBind跟bind原理一样，除了功能上一个强绑定一个弱绑。
+            console.log(this);
+            var curried = [].slice.call(arguments, 1); // 这句话，只是想利用Array的方法slice来截取传递的参数除第一位后的所有，应该就是除了obj这个需要软绑定的对象本身的其他参数，这是为了实现可选的柯里化。
+            var bound = function() {
+                return fn.apply(
+                    (!this || this === (window || undefined)) ? obj : this, curried.concat.apply(curried, arguments)
+                    // 第一个参数this的绑定对象。如果不存在this或者this调用了默认绑定规则，就将this绑定到obj即指定的对象上。
+                    // 第二个参数将传入的参数拼接成一个数组。
+                )
+            }
+            bound.prototype = Object.create(fn.prototype); // bound的原型继承自fn.prototype，也就是调用的那个函数。
+            return bound;
+        }
+    }
+
+    function foo() {
+        console.log("name: " + this.name);
+    }
+
+    var obj = {
+            name: "obj"
+        },
+        obj2 = {
+            name: "obj2"
+        },
+        obj3 = {
+            name: "obj3"
+        };
+    var fooOBJ = foo.softBind(obj);
+    fooOBJ(); // name: obj
+    obj2.foo = foo.softBind(obj);
+    obj2.foo(); // obj2 隐式绑定修改this成功
+
+    fooOBJ.call(obj3); // obj3 显示绑定修改this成功
+
+    setTimeout(obj2.foo, 10); // obj  调用默认绑定的时候，软绑定是将this绑定到了obj上
+    </script>
+</body>
+
+</html>

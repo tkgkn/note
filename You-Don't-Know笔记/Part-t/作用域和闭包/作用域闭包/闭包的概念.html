@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>函数可以记住，并访问所在词法作用域时，就产生了闭包。即便函数是在当前词法作用域外执行</p>
+	<script>
+		function foo(){
+			var a = 2;
+			function bar(){
+				console.log(a); //2
+			}
+			bar();
+		}
+		foo();
+	</script>
+	<p>大多数认为：能够访问外部变量的函数就是闭包，从技术上上来说，上面代码段也许是闭包，但是根据上面的定义，并不是闭包</p>
+	<p>上面代码段，仅仅是bar通过词法作用域的查找规则，一层层往外找，找到了a变量。这个规则仅是闭包的一部分，但这个规则对于闭包来说是非常重要的一部分</p>
+	<script>
+		// 真正意义上的闭包
+		function foo(){
+			var a = 2;
+			function bar(){
+				console.log(a);
+			}
+			return bar;
+		}
+		var baz = foo();
+		baz(); // 2   这里的baz持有了对原词法作用域的引用，而这个引用就是闭包。
+	</script>
+	<p>上面这段代码发生了什么</p>
+	<ol>
+		<li>函数bar的词法作用域可以访问foo()内部的作用域，而bar函数本身被作为一个值类型return出去，也就是bar引用的函数对象本身当做成了返回值</li>
+		<li>bar()首先可以被执行，因为符合词法作用域查找原则。但这个例子bar将在原本定义的词法作用域外执行</li>
+		<li>foo()函数执行后，通常垃圾回收器会收回这部分不在使用的空间。看上去foo()内容不会再被使用。</li>
+		<li>但闭包可以阻止垃圾回收器回收foo()这部分空间。因为bar()本身还在使用着这片空间。</li>
+		<li>bar保持了对原有定义的词法作用域的引用，这个引用称为闭包。</li>
+	</ol>
+	<p>现在清楚了：记得且可以访问原定义的词法作用域，在原词法作用域外部执行，形成闭包。闭包是函数对原词法作用域的引用。</p>
+	<script>
+		// 再看例子
+		// 无论何种方式对函数类型的值进行传递，函数只要在别处被调用，都可以形成闭包。
+		function foo(){
+			var a = 2;
+			function baz(){
+				console.log(a); //2
+			}
+			bar(baz);
+		}
+		function bar(fn){
+			fn(); // fn，此时叫fn，但是实际上就是baz，保持了对原词法作用域的引用，形成闭包。
+		}
+	</script>
+	<script>
+		// 间接传递函数形成闭包
+		var fn;
+		function foo(){
+			var a = 2;
+			function baz(){
+				console.log(a);
+			}
+			fn = baz; //baz函数对象本身赋值给fn。
+		}
+		function bar(){
+			fn();
+		}
+		foo();  //调用foo()，让fn = baz
+		bar(); //在调用bar，bar内部调用fn()，此时fn就是baz
+	</script>
+
+	<p>如果将函数作为第一级的值类型，到处传递，就会看到闭包的生成了。定时器，事件监听器，Ajax请求这类异步（或者同步）任务中，只要使用了回调函数，实际上就是在使用闭包</p>
+
+	<script>
+		var a = 2;
+		(function IIFE(){
+			console.log(a);
+		})
+		// 上面的代码段用一个自执行函数来形成闭包。根据作者对闭包的定义，函数在所在作用域之外的地方被调用，但这里，自执行函数是在所在作用域被调用，严格意义上并不是闭包。
+	</script>
+</body>
+</html>

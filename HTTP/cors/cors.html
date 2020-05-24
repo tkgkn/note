@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>cors</title>
+  </head>
+  <body>
+    <script>
+      /* cors测试 */
+      // var xhr = new XMLHttpRequest()
+      // xhr.open('GET', 'http://127.0.0.1:3334/')
+      // xhr.send()
+      // xhr.onreadystatechange = function(){
+      //   if(xhr.readyState === 4 && xhr.status === 200) {
+      //     console.log('get res: ' + xhr.response)
+      //   }
+      // }
+    </script>
+
+    <script>
+      /* 预请求测试 */
+      fetch("http://127.0.0.1:3334", {
+        method: "PUT",
+        headers: {
+          "X-Test-Cors": "123"
+        }
+      });
+
+      setTimeout(function() {
+        fetch("http://127.0.0.1:3334", {
+          method: "DELETE",
+          headers: {
+            "X-Test-Cors": "123"
+          }
+        });
+      }, 1000);
+    </script>
+
+    <!-- JSONP -->
+    <!--
+      <script>
+        window.cbFnName = function(data) {
+          // 接收data
+          console.log(data)
+        }
+      </script>
+      <script src='http://127.0.0.1:3334/?callback=cbFnName'></script>
+    -->
+  </body>
+</html>

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>第一反应就是给对象的属性赋值会触发[[Put]]来设置或者创建这个属性。</p>
+	<p>实际情况并不是完全是这样的。</p>
+	<p>触发[[Put]]的行为取决于很多因素，包括对象中是否已经存在这个属性，这是最重要的因素</p>
+	<p>如果已经存在这个属性，[[Put]]算法大致会检测以下内容</p>
+	<ul>
+		<li>属性是否是访问描述符，就是有setter也有getter的属性，如果是的，调用setter</li>
+		<li>属性的数据描述符中writable是否是false，如果是，在非严格模式下静默失败，在严格模式下抛出TypeError异常。</li>
+		<li>如果都不是，将该值设置为属性的值</li>
+	</ul>
+	<p>如果对象中不存在这个属性，操作更加复杂，涉及到[[Prototype]]</p>
+</body>
+</html>

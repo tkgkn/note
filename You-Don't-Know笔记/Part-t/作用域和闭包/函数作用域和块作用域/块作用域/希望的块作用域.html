@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>	
+	<p>在其他语言块作用域很常见，但是在javascript很少有块作用域的相关功能</p>
+	<script>
+		// 例如for循环，在其他语言中属于块作用域
+		// 本意是想在for循环里面使用变量i。但实际上i在全局上可以被访问。因为Js的for循环没有块作用域
+		for(var i = 0; i < 10; i++){
+			console.log(i);
+		}
+	</script>
+	<p>变量的声明应该距离使用的地方越近越好，最大限度的本地化</p>
+	<script>
+		// 变量bar仅仅在if里面声明，本意是想在if声明的上下文中使用，但是使用了var声明变量，最终都属于外部作用域
+		var foo = true;
+		if (foo) {
+			var bar = foo * 2;
+			bar = something(bar);
+			console.log(bar);
+		}
+	</script>
+</body>
+</html>

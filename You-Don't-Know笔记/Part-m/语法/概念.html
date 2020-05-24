@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<title`>Document</title>
+	<link rel="stylesheet" href="../common.css">
+</head>
+<body>
+	<div class="eg">
+		<p>语句，表达式。</p>
+		<script>
+			var a = 3 * 6;
+			// 整体是一个语句，声明语句
+			// 3 * 6 表达式
+			// a = 3 * 6 赋值表达式
+
+			var b = a;
+			// 整体是一个语句，声明语句
+			// a 表达式
+			// b = a 赋值表达式
+
+			b;
+			// 单独的表达式语句
+		</script>
+	</div>
+	<div class="eg">
+		<p>语句的结果值，代码块最后一个语句/表达式的结果</p>
+		<script>
+			var a = 42; // 控制台看到undefined
+
+			var b;
+			if (true) {
+				b = 4 + 38; // 这是最后一句赋值表达式，打印42
+			}
+
+			// 不能获得语句结果值再赋值给其他变量
+			// try{
+			// 	var a,b;
+			// 	a = if (true) {
+			// 		b = 4 + 38;
+			// 	}
+			// }catch(e) {
+			// 	console.log(e)
+			// }
+		</script>
+	</div>
+</body>
+</html>

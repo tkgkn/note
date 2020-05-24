@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>隐式绑定，考虑下调用点是否有一个上下文对象，或者说是被某个对象拥有或者包含</p>
+	<script>
+		function foo(){
+			console.log(this.a);
+		}
+
+		var obj = {
+			a: 2,
+			foo: foo
+		};
+
+		obj.foo(); // 2
+	</script>
+	<p>严格来说，foo函数不属于obj对象，无论是直接在obj中定义还是之后添加为引用属性。</p>
+	<p>但是在调用时，也就是19行代码，用了obj.foo，也就是用了obj上下文来引用函数foo，这就可以说函数被调用时，obj对象拥有了或包含了函数foo。</p>
+	<p>规则来了：当函数引用有上下文时，隐式绑定规则会把函数调用中的this绑定到这个上下文对象上。因此obj.foo()时，foo中的this就绑定了obj，this.a === obj.a</p>
+	
+	<!-- 但是要注意，对象属性引用链中，只有上一层或者说最后一层在调用位置中起作用 -->
+	<script>
+		function foo(){
+			console.log(this.a);
+		}
+		var obj2 = {
+			a: 42,
+			foo: foo
+		};
+		var obj1 = {
+			a: 2,
+			obj2: obj2
+		};
+		obj1.obj2.foo(); // 此时的this，应该是调用链中的最后一个也就是obj2，因此打印42
+	</script>
+
+	<!-- 隐式丢失-->
+	<script>
+		// 被隐式绑定的函数会丢失绑定对象，转而使用默认绑定，从而把this绑定到全局或undefined，取决于是否是严格模式 
+		function foo(){
+			console.log(this.a);
+		}
+
+		var obj = {
+			a: 2,
+			foo: foo
+		};
+
+		var bar = obj.foo; // 函数别名！
+		var a = "oops, global"; // a是全局对象的属性;
+		bar();
+		// 看样子是bar引用了obj.foo，但是实际上，bar引用的正是foo()函数本身，因此bar()是一个不带任何修饰的独立函数调用，因此this绑定到了window，使用了默认绑定的规则。
+		// 这里this本来是绑定在obj上，但是传递给bar后，丢失了绑定对象。
+	</script>
+
+	<script>
+		// 一种更微妙更常见更出乎意料的情况发生在传入回调函数
+		function foo(){
+			console.log(this.a);
+		}
+		function doFoo(fn){
+			fn(); //call-site for foo。暂不确定的结论：fn实际上就是foo，可以看成foo()，独立函数调用，使用默认绑定规则。
+		}
+		var obj = {
+			a: a,
+			foo: foo
+		};
+		var a = "oops, global"; 
+		doFoo(obj.foo); // 打印oops,global  call-site for doFoo
+		// 传入回调函数丢失this绑定，原本计划this绑定至obj，但是最终还是丢失，绑定成了window
+		// 参数传递并没有直接的=来赋值，而是通过传进来的标识符fn和函数内部的标识符fn挂钩，来达到传递参数的作用，这就是一种隐式的赋值。一旦我们传递了一个函数，这也就成了隐式引用赋值（obj.foo赋值给了fn）。
+		// 跟之前的相同点都在于，最终成为了引用函数bar=obj.foo    doFoo(obj.foo)，都在引用foo()函数本身。
+	</script>
+	<script>
+		// 也许是因为上面的doFo()函数使我们自己创建的，所以导致了this的丢失，现在尝试传入到内建函数中
+		function foo(){
+			console.log(this.a)
+		}
+		var obj = {
+			a: 2,
+			foo: foo
+		};
+
+		var a = "oops, global";
+		setTimeout(obj.foo,1000); // oops, global  证明this依旧是全局window。使用了默认绑定规则。
+		// setTimeout函数实现和下面的伪代码类似：
+		function setTimeout(fn,delay){
+			// 等待delay毫秒
+			fn(); // 这里调用。毫无任何修饰的独立函数调用。
+		}
+	</script>
+	<p>总结：回调函数丢失this绑定是非常常见的，除此之外，还有一种情况this的行为会出乎意料，调用回调函数的那个函数，可能会修改this值，在一些第三方库里，事件处理器通常会把回调函数的this强制绑定到触发事件的DOM元素上</p>
+	<p>无论是哪种情况，this的改变都是意想不到的，无法控制回调函数的执行方式，因此没有办法控制调用位置以得到期望的绑定。后面介绍如何固定this来修复这个问题</p>
+</body>
+</html>

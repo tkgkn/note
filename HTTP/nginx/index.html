@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>nginx</title>
+</head>
+
+<body>
+  <div>this is content, and data is <span id="data"></span></div>
+  <button id="button">click me</button>
+  <script>
+    // 这里的测试，可以发现当请求时，X-Test-Cache的同一个值出现第二次时，就会走代理缓存，接口返回非常快而不是等待2秒后再返回，而X-Test-Cache的同一个值出现第一次的时候，还是会等待2秒在获取返回值。（该测试配合nginx才行）
+    var index = 0
+    function doReq() {
+      fetch('/data', {
+        headers: {
+          'X-Test-Cache': index++
+        }
+      }).then(function (res) {
+        return res.text()
+      }).then(function (text) {
+        document.getElementById('data').innerText = text
+      })
+    }
+    document.getElementById('button').addEventListener('click', doReq)
+  </script>
+</body>
+
+</html>

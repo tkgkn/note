@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<p>弄明白下Object.create()</p>
+	<script>
+		var foo = {
+			something: function(){
+				console.log("Tell me someting good ...");
+			}
+		};
+
+		var bar = Object.create(foo);
+		bar.something(); // Tell me someting good ...
+	</script>
+	<p>Object.create创建一个新对象bar，并将之关联到指定的对象foo上，这样我们就可以充分发挥[[Prototype]]机制的威力（委托）并且避免不必要的麻烦（比如使用new构造函数调用会生成.prototype和.constructor引用）</p>
+	<p>Object.create(null)会创建一个空[[Prototype]]链接的对象，该对象无法被委托，没有原型链，所以instanceof操作无法进行判断，因此总会返回false。这些特殊的空[[Prototype]]对象通常被称为“字典”，完全不会受到原型链的干扰，适合存储数据</p>
+
+	<p>不需要类来创建2个对象的关系，只需要通过委托来关联对象即可。而Object.create()不包含任何“类的诡计”，因此可以完美的创建我们想要的关联关系。</p>
+	<p>注意：旧版本IE不支持Object.create()，需要用到polyfill代码</p>
+	<script>
+		if (!Object.create) {
+			Object.create = function(o){
+				function F(){};
+				F.Prototype = o;
+				return new F();  // 返回一个新对象实例，该对象的原型即你指定的o。
+			}
+		}
+	</script>
+	<p>Object.create()还有别的特性，第二个参数，可以指定需要添加到新对象中的属性名以及这些属性的属性描述符，ES5之前的版本无法模拟属性操作符，所以polyfill代码无法实现这个附加功能。</p>
+	<script>
+		var anotherObject = {
+			a: 2
+		};
+
+		var myObject = Object.create(anotherObject, {
+			b: {
+				enumerable: false,
+				writable: true,
+				configurable: false,
+				value: 3
+			},
+
+			c: {
+				enumerable: false,
+				writable: false,
+				configurable: false,
+				value: 4
+			}
+		})
+
+		console.log(myObject.hasOwnProperty("a")); // false
+		console.log(myObject.hasOwnProperty("b")); // true
+		console.log(myObject.hasOwnProperty("c")); // true
+
+		console.log(myObject.a) // 2
+		console.log(myObject.b) // 3
+		console.log(myObject.c) // 4
+	</script>
+	<p>因为旧版本IE中没有属性描述符，也无法模拟，因此polyfill代码无法实现这个附加功能。</p>
+</body>
+</html>

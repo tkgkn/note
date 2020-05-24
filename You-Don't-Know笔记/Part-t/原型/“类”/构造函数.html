@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		function Foo(){
+			// 
+		}
+		var a = new Foo();
+		// 为啥你会认为Foo是一个类？
+		// 因为看到了new，传统面向类的语言中构造类实例时会用到new。另一个原因是，我们执行了类的构造函数方法，Foo()的调用方式很像初始化类时类构造函数的调用方式。
+	</script>
+	<p>除了构造函数意外，Foo.prototype还有一个constructor，这个属性时公有且不可枚举，这个属性引用的是对象关联的函数</p>
+	<script>
+		function Foo(){
+
+		}
+		console.log(Foo.prototype.constructor === Foo); // true
+
+		var a = new Foo();
+		console.log(a);
+		console.log(a.constructor === Foo); // true
+		console.log(Object.getPrototypeOf(a)); 
+	</script>
+	<p>实际上a本身并没有.contructor属性，而且，虽然a.constructor确实指向Foo函数，但是这个属性并不是表示a由Foo“构造”。</p>
+	<p>这是一个很不幸的误解，实际上.contructor引用同样被委托给了Foo.prototype，而Foo.prototype.constructor默认指向Foo。另外，为什么说constructor并不能表示a由Foo构造？因为a.constructor只是通过默认的prototype委托指向了Foo，跟由谁构造毫无关系。看下面代码</p>
+	<script>
+		function Foo(){};
+		Foo.prototype = {}; // constructor是在Foo.prototype上的，这段代码会导致原型对象被重写，原本constructor===Foo被抹掉了。
+
+		var a1 = new Foo();
+		console.log(a1.constructor === Foo); // false
+		console.log(a1.constructor === Object); // true
+
+		// 实际上这里：a1本身没有constructor，然后因为new Foo()让a跟原型对象Foo.prototype进行了关联，然后去Foo.prototype上找，但因为这个被重写了，导致constructor没了，然后又进一步委托，这词委托到了顶端的Object.prototype，这时有constructor了，指向了内置的Object()
+
+		// 如果需要指定Foo.prototype.constructor === Foo。可以这样
+		Object.defineProperty(Foo.prototype,"constructor",{
+			enumerable: false,
+			writable: true,
+			configurable: true,
+			value: Foo //指回去
+		})
+	</script>
+
+
+
+	<p>另外：按照惯例，类名首字母要大些，所以名字写作Foo而非foo，也正是在提示它是一个类。但我们要知道，这只是普通的函数，只是首字母大写了而已。</p>
+	<p>叫做函数的构造调用，更确切</p>
+	<p>仅仅是因为调用函数时，前面加了new关键字，就把函数变成了一个“构造函数调用”，实际上，new会劫持所有普通函数并用构造对象的形式来调用它。</p>
+	<script>
+		function NothingSpecial(){
+			console.log("Don't mind me!");
+		}
+
+		var a = new NothingSpecial(); // "Don't mind me!"
+		console.log(a); //{..}
+	</script>
+	<p>如你所见，NothingSpecial只是一个普通的函数，但是使用new调用时，它会构造一个对象并赋值给a。看起来像是new的一个副作用，无论如何都会构造一个对象。这个调用是一个构造函数调用，但NothingSpecial本身并不是一个构造函数。</p>
+	<p>换句话说：在Js中对于“构造函数”最准确的解释是：所有带有new的函数调用。</p>
+</body>
+</html>

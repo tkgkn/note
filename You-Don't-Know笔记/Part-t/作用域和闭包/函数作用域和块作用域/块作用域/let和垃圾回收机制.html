@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script>
+		// 垃圾回收，我们通常认为这样
+		function process(data){
+			// do some
+		}
+
+		var someReallyBigData = {};
+
+		process(someReallyBigData);
+		var btn = document.getElementById("my_button");
+
+		btn.addEventListener("click",function click(evt){  //click函数和process(someReallyBigData)毫无任何关系。按道理来说执行完process()后，内存中占用的大量空间的数据结构就可以被垃圾回收了。但是由于click函数形成了一个覆盖了整个作用域的闭包，导致不能被垃圾回收器回收。
+			console.log("button clicked");
+		})
+	</script>
+	<p>主要是闭包导致不能被垃圾回收，太多闭包就会造成我们通常说的内存溢出。</p>
+	<p>但是如果用了let来明确块作用域，就可以让垃圾回收器打消这个顾虑，既然跟click事件没有关系，那就回收了process()</p>
+	<script>
+		function process(data){
+			// 在这里做点有趣的事情
+		}
+
+		// 这下，这个块中定义的内容在执行完后可以毫无顾虑销毁了！
+		{
+			let someReallyBigData = {};
+			process(someReallyBigData);
+		}
+
+		var btn = document.getElementById("my_button");
+		btn.addEventListener("click",function click(evt){  
+			console.log("button clicked");
+		})
+	</script>
+</body>
+</html>

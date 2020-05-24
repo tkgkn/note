@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+
+<body>
+
+  <body>
+    <div class="eg">
+      <h4>7种内置类型</h4>
+      <ul>
+        <li class="indent">string类型</li>
+        <li class="indent">number类型</li>
+        <li class="indent">boolean类型</li>
+        <li class="indent">null类型</li>
+        <li class="indent">undefined类型</li>
+        <li class="indent">object类型</li>
+        <li class="indent">ES6的symbol符号类型</li>
+      </ul>
+      <script>
+      // 用typeof能返回类型的字符串值
+      console.log(typeof undefined === "undefined"); // true
+      console.log(typeof true === "boolean"); // true
+      console.log(typeof 42 === "number"); // true
+      console.log(typeof "42" === "string"); // true
+      console.log(typeof { life: 42 } === "object"); // true
+      // ES6中新加入的类型
+      console.log(typeof Symbol() === "symbol"); // true
+
+      // 但是null，还有Object的子类型
+      console.log(typeof null) // object
+      console.log(typeof
+        function a() {}) // function
+      console.log(typeof [1])
+      </script>
+    </div>
+    <div class="eg">
+      <p><span class="bold">undefined</span>和<span class="bold">undeclared</span>是2回事</p>
+      <script>
+      	var a;
+      	console.log(a)
+      	try {
+					console.log(isUndeclared)
+      	}catch(e){
+      		console.log(e)
+      	}
+      </script>
+    </div>
+  </body>
+</body>
+
+</html>

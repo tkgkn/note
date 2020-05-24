@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <link rel="stylesheet" href="../common.css">
+</head>
+
+<body>
+  <div class="eg">
+    <p>数组可以存放
+      <span class="bold">every thing</span>
+    </p>
+    <script>
+      var arr = [1, [2, 3], function a() {}, {
+        box: 1
+      }];
+      console.log(arr)
+    </script>
+  </div>
+  <div class="eg">
+    <p>稀疏数组
+      <span class="red">含有空白或空缺单元的数组</span>
+    </p>
+    <script>
+      var arr = [];
+      arr[0] = 1;
+      arr[2] = 3;
+      console.log(arr.length);
+    </script>
+  </div>
+  <div class="eg">
+    <p>数组亦是对象，可以有字符串键值</p>
+    <script>
+      var arr = [1];
+      arr['name'] = 'jack';
+      console.log(arr.length);
+      // 当字符串可以转换为十进制的数字，自动变为数字索引
+      arr['5'] = 5;
+      console.log(arr, arr.length)
+    </script>
+  </div>
+  <div class="eg">
+    <p>类数组
+      <span class="red">可转换为真正数组，需通过数组工具函数
+        <span class="blue">indexOf,concat,forEach...</span>
+      </span>
+    </p>
+    <script>
+      // DOM查询会返回一个元素列表，类数组。函数的arguments对象也是类数组，ES6开始废止
+      function foo() {
+        var arr = Array.prototype.slice.call(arguments);
+        console.log(arr, Object.prototype.toString.call(arr))
+      }
+      foo('bar', 'baz');
+
+      // ES6提供Array.from实现同样功能。
+      var aP = Array.from(document.querySelectorAll('p'))
+      console.log(aP, Object.prototype.toString.call(aP));
+      console.log(Object.prototype.toString.call(aP[0]))
+    </script>
+  </div>
+</body>
+
+</html>

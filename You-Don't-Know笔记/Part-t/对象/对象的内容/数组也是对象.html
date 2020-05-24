@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+
+<body>
+    <h3>数组</h3>
+    <p>数组也支持[]访问形式，不过向我们之前提到过的，数组有一套更加结构化的值存储机制，数组期望的是数值下标，也即是说值存储的索引是整数</p>
+    <script>
+    var myArray = ["foo", 42, "bar"];
+    myArray.length; // 3
+    myArray[0]; // "foo"
+    myArray[2]; // "bar"
+    // 数组也是对象，可以给数组添加属性，但是不会改变数组的长度
+    myArray.baz = "baz";
+    myArray.length; // 3
+    myArray.baz; // baz
+    // 但是如果向数组添加一个属性，属性名看起来像一个数字，那就会转变成数组下标，改变数组长度。
+    myArray["3"] = "baz";
+    myArray.length; // 4
+    myArray[3]; // "baz"
+    </script>
+</body>
+
+</html>
