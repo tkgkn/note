@@ -29,8 +29,9 @@ async function createSiderBar(
     'node_modules',
     'guide',
     '.git',
-    '2018',
-    'ES6-Learn',
+    // '2018',
+    // 'ES6-Learn',
+    "You-Don't-Know笔记",
   ]
 ) {
   const paths = [];
