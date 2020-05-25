@@ -32,6 +32,7 @@ async function createSiderBar(
     // '2018',
     // 'ES6-Learn',
     "You-Don't-Know笔记",
+    'Typescript',
   ]
 ) {
   const paths = [];
@@ -57,6 +58,10 @@ async function createSiderBar(
         });
         await traverse(checkFileOrDirPath, childRef);
       } else {
+        // 感叹号开头的md，没有写完，不放到目录里
+        if (item.indexOf('!') === 0) {
+          return;
+        }
         const ext = path.extname(checkFileOrDirPath).toLocaleLowerCase();
         if (ext === '.md') {
           parentChildRef &&
