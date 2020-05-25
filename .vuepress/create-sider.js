@@ -1,6 +1,17 @@
 const path = require('path');
 const fs = require('fs');
 
+const excludeDir = [
+  '.vuepress',
+  'node_modules',
+  'guide',
+  '.git',
+  // '2018',
+  // 'ES6-Learn',
+  "you-don't-knowjs",
+  'typescript',
+];
+
 // promise化err first风格函数
 function promisify(f, manyArgs = false) {
   return function (...args) {

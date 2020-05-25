@@ -3,7 +3,16 @@ const sidebar = require('./sidebar.json');
 module.exports = {
   title: 'tkgkn',
   evergreen: true,
-  plugins: ['@vuepress/back-to-top', '@vuepress/nprogress'],
+  plugins: [
+    '@vuepress/back-to-top',
+    '@vuepress/nprogress',
+    [
+      '@vuepress/google-analytics',
+      {
+        ga: 'UA-167546821-1',
+      },
+    ],
+  ],
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
