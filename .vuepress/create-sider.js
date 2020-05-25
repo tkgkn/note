@@ -59,7 +59,7 @@ async function createSiderBar(
         await traverse(checkFileOrDirPath, childRef);
       } else {
         // 感叹号开头的md，没有写完，不放到目录里
-        if (item.indexOf('!') === 0) {
+        if (item.indexOf('@') === 0) {
           return;
         }
         const ext = path.extname(checkFileOrDirPath).toLocaleLowerCase();
