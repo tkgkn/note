@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const excludeDir = [
+const EXCLUDE_DIR = [
   '.vuepress',
   'node_modules',
   'guide',
@@ -33,19 +33,7 @@ const stat = promisify(fs.stat);
 const readDir = promisify(fs.readdir);
 
 // 递归生成目录配置
-async function createSiderBar(
-  project,
-  excludeDir = [
-    '.vuepress',
-    'node_modules',
-    'guide',
-    '.git',
-    // '2018',
-    // 'ES6-Learn',
-    "You-Don't-Know笔记",
-    'Typescript',
-  ]
-) {
+async function createSiderBar(project, excludeDir = EXCLUDE_DIR) {
   const paths = [];
   async function traverse(dirs, parentChildRef) {
     // 获取当前目录文件和文件名
