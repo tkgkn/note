@@ -7,7 +7,11 @@ const EXCLUDE_DIR = [
   'guide',
   '.git',
   // '2018',
-  // 'ES6-Learn',
+  // '2019',
+  // 'es6-learn',
+  // 'bugs-collection',
+  // 'guide',
+  // 'http',
   "you-don't-knowjs",
   'typescript',
 ];
@@ -41,6 +45,7 @@ async function createSiderBar(project, excludeDir = EXCLUDE_DIR) {
     for (let i = 0; i < curFilesAndDirs.length; i++) {
       const childRef = [];
       const item = curFilesAndDirs[i];
+      console.log(item);
       if (excludeDir.includes(item)) {
         continue;
       }
@@ -57,9 +62,9 @@ async function createSiderBar(project, excludeDir = EXCLUDE_DIR) {
         });
         await traverse(checkFileOrDirPath, childRef);
       } else {
-        // 感叹号开头的md，没有写完，不放到目录里
+        // @开头的md，没有写完，不放到目录里
         if (item.indexOf('@') === 0) {
-          return;
+          continue;
         }
         const ext = path.extname(checkFileOrDirPath).toLocaleLowerCase();
         if (ext === '.md') {
