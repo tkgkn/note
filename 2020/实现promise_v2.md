@@ -326,3 +326,5 @@ MyPromise.all = function (promises) {
 该版本的 promise 整体较为容易理解，真正的模拟实现，还应该根据`PromiseA+`规范约定的，处理各个`promise`实现的兼容，这里就不做分析了，网上有很多。
 
 至于`race`等方法，其实跟`all`差不多了，只要有一个`resolved`或`rejected`了，整体就决议了，感兴趣的读者，自己尝试下。
+
+上一下`codesandbox`的测试链接，[手撕 promise](https://codesandbox.io/s/shousipromise-02109)。
