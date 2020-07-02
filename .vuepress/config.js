@@ -12,6 +12,7 @@ module.exports = {
         ga: 'UA-167546821-1',
       },
     ],
+    '@vuepress/medium-zoom',
   ],
   themeConfig: {
     nav: [
@@ -23,6 +24,6 @@ module.exports = {
   },
   extraWatchFiles: [
     '.vuepress/styles/home-page-styl', // 使用相对路径
-    '.vuepress/sidebar.json', // 配置文件改变
+    '.vuepress/sidebar.json', // 目录结构，由脚本生成
   ],
 };
