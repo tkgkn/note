@@ -4,7 +4,7 @@
 
 ## 导航阶段
 
-![导航阶段](./img/browser1.png)
+![导航阶段](./img/browser_navigator.png)
 
 ## 渲染阶段
 
