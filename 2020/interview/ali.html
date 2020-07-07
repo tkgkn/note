@@ -60,6 +60,12 @@
     <script>
       (function() {
         class MergeReqAndCache {
+          constructor() {
+            this.timer = null;
+            this.mergeParamsFn = {};
+            this.cacheParams = [];
+          }
+
           delay(t) {
             return new Promise(resolve => {
               setTimeout(() => {
@@ -68,20 +74,62 @@
             });
           }
 
+          // 合并处理函数
+          // 并发执行时，只执行最后一次。
+          mergeFn(mergeFnName) {
+            return new Promise(resolve => {
+              clearTimeout(this.timer);
+              this.timer = setTimeout(async () => {
+                // 合并多个函数后，真正执行的最后一个函数。
+                // 收集的参数深复制
+                const copyParams = JSON.parse(JSON.stringify(this.cacheParams));
+                // 重置收集参数
+                this.cacheParams = [];
+                const r = await this.mergeParamsFn[mergeFnName](...copyParams);
+                resolve(r);
+              }, 0);
+            });
+          }
+
           // 返回一个函数
           // 具备缓存，具备多次调用合并
-          wrapFn(fn) {
+          // mergeFn?: {fn: Function, name?: string}
+          wrapFn(fn, mergeFn) {
+            const _this = this;
             const cacheRes = {};
+            // 注册fn函数配对的合并处理函数
+            let name = '';
+            if (mergeFn && mergeFn.fn) {
+              name = mergeFn.name || fn.name;
+              this.mergeParamsFn[name] = mergeFn.fn;
+            }
             return async function wrappedFn() {
-              const args = arguments;
-              const key = [].slice.call(args).toString();
-              // 有缓存值，直接返回
-              if (cacheRes[key] !== undefined) {
-                return await Promise.resolve(cacheRes[key]);
+              const args = [].slice.call(arguments);
+              // 收集参数
+              _this.cacheParams.push(args);
+
+              await _this.delay(0);
+
+              // 多个任务的参数收集，走合并处理函数
+              if (_this.cacheParams.length > 1 && name) {
+                if (!name) {
+                  console.log('缺少配对的合并处理函数');
+                  return;
+                }
+                const mergeRes = await _this.mergeFn(name, _this.cacheParams);
+                return mergeRes;
               } else {
-                const r = await fn.apply(this, args);
-                cacheRes[key] = r;
-                return r;
+                // 单独调用，重置收集的参数
+                _this.cacheParams = [];
+                const key = args.toString();
+                // 有缓存值，直接返回
+                if (cacheRes[key] !== undefined) {
+                  return await Promise.resolve(cacheRes[key]);
+                } else {
+                  const r = await fn.apply(this, args);
+                  cacheRes[key] = r;
+                  return r;
+                }
               }
             };
           }
@@ -98,17 +146,45 @@
           });
         }
 
-        const newGet = cacheIns.wrapFn(get);
+        function gets() {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              resolve([].slice.call(arguments));
+            }, 1000);
+          });
+        }
 
-        newGet(1).then(r => {
+        // const newGets = cacheIns.wrapFn(gets);
+
+        const newGet = cacheIns.wrapFn(get, {
+          name: 'gets',
+          fn: gets
+        });
+
+        newGet('a1').then(r => {
           console.log('r1', r);
         });
 
+        newGet('a2').then(r => {
+          console.log('r2', r);
+        });
+
+        // 测缓存
         setTimeout(() => {
-          newGet(1).then(r => {
-            console.log('r2', r);
+          newGet('b1').then(r => {
+            console.log('r3', r);
           });
         }, 2000);
+
+        // 测合并缓存
+        setTimeout(() => {
+          newGet('c1').then(r => {
+            console.log('r4', r);
+          });
+          newGet('b2').then(r => {
+            console.log('r5', r);
+          });
+        }, 3000);
       })();
     </script>
   </body>
