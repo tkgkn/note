@@ -1,182 +1,153 @@
-function tokenizer(content) {
-  //结果数组
-  var result = [];
+// 时间问题，只考虑支持如下html标签支持，不考虑注释的文本。另外还有些情况没有考虑，需要时间优化，如<div>hello<span/>world</span></div>
+const htmlTag = 'div|p|span|h1|h2|h3|h4|h5|h6|image';
 
-  //特殊符号的集合
-  var symbol = [
-    '{',
-    '}',
-    ':',
-    ';',
-    ',',
-    '(',
-    ')',
-    '.',
-    '#',
-    '~',
-    ,
-    '<',
-    '>',
-    '*',
-    '+',
-    '[',
-    ']',
-    '=',
-    '|',
-    '^'
-  ];
+// 普通标签的开始，如<div>
+const startTagReg = new RegExp(`<(${htmlTag}+)\\s?.*?">`);
+// 普通标签的结束标签</div>
+const endTagReg = new RegExp(`</(${htmlTag})>`);
+// 自闭和标签，如<image />
+const selfClosingStartTagReg = new RegExp(`<(${htmlTag}+)\\s?.*?"(\\s?\/?)>`);
+// 匹配标签之间的字符串内容
+const pureTxtReg = new RegExp(`^([^<].*?)(\?\=<)`);
 
-  //是否在字符串中，如果是的话，要保留换行、缩进、空格
-  var isInString = false;
+// 测试的HTML字符串文本
+// 题目的输入测试：
+let str = '<div id="main" data-x="hello">Hello<span id="sub" /></div>';
+// 自己的输入测试：
+// let str = '<div id="parent"><div id="son1">hello</div></div>';
+// let str =
+//   '<div id="parent"><div id="son1">hello</div><div id="son2">hello2</div></div>';
 
-  //当前的单词栈
-  var tmpString = '';
+// 考虑一些特殊问题没有考虑到，导致浏览器爆栈，这里限制下先。
+let stackoverflow = 1000;
 
-  for (var i = 0; i < content.length; i++) {
-    //逐个读取字符
-    var t = content[i];
-
-    //当读取到引号时，进入字符串状态
-    if (t == "'" || t == '"') {
-      if (isInString) {
-        tmpString += t;
-        isInString = false;
-        result.push(tmpString);
-        tmpString = '';
-      } else {
-        tmpString += t;
-        isInString = true;
-      }
-      continue;
-    }
-
-    if (isInString) {
-      //字符串状态
-      tmpString += t;
-    } else {
-      //非字符串状态
-
-      if (t == '\n' || t == ' ' || t == '    ') {
-        //如果读到了换行、空格或者tab，那么把当前单词栈中的字符作为一个单词push到结果数组中，并清零单词栈
-        if (tmpString.length != 0) {
-          result.push(tmpString);
-          tmpString = '';
-        }
-        continue;
-      }
-      if (symbol.indexOf(t) != -1) {
-        //如果读到了特殊符号，那么把当前单词栈中的字符作为一个单词push到结果数组中，清零单词栈，再把这个特殊符号放进结果数组
-        if (tmpString.length != 0) {
-          result.push(tmpString);
-          tmpString = '';
-        }
-        result.push(t);
-        continue;
-      }
-      //否则把字符推入单词栈中
-      tmpString += t;
-    }
+// 定义节点的类型。
+class NodeType {
+  constructor(config) {
+    const { tag, selfClose, attributes, text, children = [] } = config;
+    this.tag = tag;
+    this.selfClose = selfClose;
+    this.attributes = attributes;
+    this.text = text;
+    this.children = children;
   }
-  return result;
 }
 
-function parser(tokenArray) {
-  //等下我们要从单词序列中过滤出HTML标签
-  var tagArray = [];
+function parse(str) {
+  // 栈，维护节点的层级关系
+  let relationStack = [];
+  let parent = null;
+  while (str.length && stackoverflow > 0) {
+    console.log(str);
+    stackoverflow--;
+    // 是否是开始标签
+    if (str.startsWith('<') && str[1] !== '/') {
+      const normalMatch = str.match(startTagReg);
+      let selfCloseMatch = null;
+      if (!normalMatch) {
+        selfCloseMatch = str.match(selfClosingStartTagReg);
+      }
+      // 最近的一次匹配
+      const theMatch = RegExp.lastMatch.startsWith('<')
+        ? RegExp.lastMatch
+        : null;
+      // 匹配值的右侧
+      const theMatchRight = RegExp.rightContext;
+      // 匹配的标签
+      const tag = RegExp.$1;
+      const selfClose = false;
+      const attributes = getAttributes(theMatch);
+      let node = null;
 
-  //节点组成的栈，用于记录状态
-  var nodeStack = [];
-
-  //根节点
-  var nodeTree = {
-    name: 'root',
-    children: []
-  };
-
-  //是否在script、style标签内部
-  var isInScript = false,
-    isInStyle = false;
-
-  //先把根节点推入节点栈
-  nodeStack.push(nodeTree);
-
-  //一大堆单词序列中过滤出HTML标签，注意这里没有考虑到script、style中的特殊字符
-  tokenArray.forEach(function(item, index) {
-    if (item == '<') {
-      tagArray.push(tokenArray[index + 1]);
-    }
-  });
-
-  //HTML标准中自封闭的标签
-  var selfEndTags = [
-    'img',
-    'br',
-    'hr',
-    'col',
-    'area',
-    'link',
-    'meta',
-    'frame',
-    'input',
-    'param'
-  ];
-
-  tagArray.forEach(function(item, index) {
-    //逐个读取标签
-    if (item[0] == '!' || selfEndTags.indexOf(item) != -1) {
-      //自封闭标签、注释、!DOCTYPE
-      nodeStack[nodeStack.length - 1].children.push({
-        name:
-          item[0] == '!' && item[1] == '-' && item[2] == '-'
-            ? '<!--comment-->'
-            : item,
+      node = new NodeType({
+        tag,
+        selfClose,
+        text: '',
+        attributes,
         children: []
       });
-    } else {
-      //普通标签
-      if (item[0] != '/') {
-        //普通标签头
-        if (!isInScript && !isInStyle) {
-          //如果不在script或者style标签中，向节点栈尾部的children中加入这个节点，并推入这个节点，让它成为节点栈的尾部
-          var newNode = {
-            name: item,
-            children: []
-          };
-          nodeStack[nodeStack.length - 1].children.push(newNode);
-          nodeStack.push(newNode);
-        }
 
-        //如果是script或者style标签，那么进入相应的状态
-        if (item == 'script') {
-          isInScript = true;
+      // 如果是普通开始标签
+      if (normalMatch) {
+        // 如果该节点不是自闭合标签，则入栈
+        relationStack.push(node);
+      } else if (selfCloseMatch) {
+        // 如果是自闭和开始标签
+        node.selfClose = true;
+      }
+
+      if (parent) {
+        parent.children.push(node);
+      }
+
+      // 父节点指向栈结构的最上层，按照数组结构，也就是最后一个元素
+      let parentIdx = relationStack.length - 1;
+      parentIdx = parentIdx < 0 ? 0 : parentIdx;
+      parent = relationStack[parentIdx];
+
+      // 裁剪掉已经匹配过的字符串部分
+      str = theMatchRight;
+      continue;
+    } else if (str.startsWith('</') && str.match(endTagReg)) {
+      const theMatch = RegExp.lastMatch;
+      const theMatchRight = RegExp.rightContext;
+      const tag = RegExp.$1;
+      // 如果是闭合标签，执行出栈操作，先判断是否是同一个标签节点
+      if (parent && parent.tag && parent.tag === tag) {
+        // 推出栈最顶层的节点，它可能是栈里的最后一个，也就是根节点
+        const maybeLast = relationStack.pop();
+        // 父节点元素变更为最新的栈顶层的节点
+        parent = relationStack[relationStack.length - 1];
+
+        // 如果栈已经空了，根节点暴露出来就可以
+        if (relationStack.length === 0) {
+          parent = maybeLast;
         }
-        if (item == 'style') {
-          isInStyle = true;
-        }
+        // 裁剪掉匹配过的字符串部分
+        str = theMatchRight;
       } else {
-        //普通标签尾
-        if (item.split('/')[1] == nodeStack[nodeStack.length - 1].name) {
-          //如果这个标签和节点栈尾部的标签相同，那么认为这个节点终止，节点栈推出。
-          nodeStack.pop();
-        }
+        console.error('HTML字符串语法错误，停止解析');
+        throw new Error('大侠你的HTML有问题');
+      }
+    }
 
-        //如果是script或者style标签，那么进入相应的状态
-        if (item.split('/')[1] == 'script') {
-          isInScript = false;
-        }
-        if (item.split('/')[1] == 'style') {
-          isInStyle = false;
-        }
+    // 开始处理纯文本
+    if (!str.startsWith('<') && str.match(pureTxtReg)) {
+      const theMatch = RegExp.lastMatch;
+      const theMatchRight = RegExp.rightContext;
+      if (parent) {
+        parent.text = theMatch;
+      }
+      str = theMatchRight;
+      continue;
+    }
+  }
+  console.log(parent);
+  return parent;
+}
+
+function getAttributes(str) {
+  if (!str) {
+    return {};
+  }
+  // 去除左右两边的<xx 或 /> 或 >
+  const startReg = new RegExp(`^<(${htmlTag})\\s`);
+  str = str.replace(startReg, '');
+  const endReg = new RegExp(`\/?>$`);
+  str = str.replace(endReg, '');
+  const valReg = /^"(.*)"$/;
+
+  const attributesArr = str.split(' ');
+  const obj = {};
+  attributesArr.forEach(item => {
+    if (item) {
+      const kv = item.split('=');
+      if (kv[0]) {
+        obj[kv[0]] = kv[1].match(valReg)[1];
       }
     }
   });
-  return nodeTree;
+  return obj;
 }
 
-const arr = tokenizer(
-  '<div id="main" data-x="hello">Hello<span id="sub" /></div>'
-);
-console.log(arr);
-
-const r = parser(arr);
-console.log(r);
+parse(str);
