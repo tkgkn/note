@@ -1,0 +1,30 @@
+.mask {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.mask > .modal {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 240px;
+  min-height: calc(240px * 0.618);
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.mask > .modal > .buttons {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  align-items: center;
+}
